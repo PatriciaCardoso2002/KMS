@@ -58,7 +58,7 @@ namespace etsi_qkd_004 {
         if (connect(sock, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
             throw std::runtime_error("\n ERROR: Socket connection Failed \n");
 
-        // Socket send
+        // Socket se/home/jphcr/kml/eigennd
         send(sock, msg.c_str(), msg.size(), 0);
 
         // Socket receive

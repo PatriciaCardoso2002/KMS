@@ -7,6 +7,7 @@
 
 
 int main() {
+    
     //Leitura do ficheiro 
     std::ifstream binaryFile("arquivo_binario.bin", std::ios::binary);
     if(!binaryFile.is_open()){
