@@ -10,7 +10,7 @@
 // ####################################################################################################
 // #
 // # STL header files
-// #
+// #f
 // ####################################################################################################
 
 #ifdef _WIN32
@@ -875,25 +875,24 @@ using HandlerMessage =
 //########################################################## GENERIC BLOCK DECLARATIONS AND DEFINITIONS ##################################################
 //########################################################################################################################################################
 
-class Block {
+class Block
+{
 
 public:
-
 	/* Methods */
 	Block(){};
-	Block(std::vector<Signal*> &InputSig, std::vector<Signal*> &OutputSig);
-	Block(std::initializer_list<Signal*> InputSig, std::initializer_list<Signal*> OutputSig); // since C++11
+	Block(std::vector<Signal *> &InputSig, std::vector<Signal *> &OutputSig);
+	Block(std::initializer_list<Signal *> InputSig, std::initializer_list<Signal *> OutputSig); // since C++11
 
-
-	//void initializeBlock(std::vector<Signal*> InputSig, vector<Signal*> OutputSig);
+	// void initializeBlock(std::vector<Signal*> InputSig, vector<Signal*> OutputSig);
 	void initializeBlock();
 
-	virtual void initialize(void) {};
+	virtual void initialize(void){};
 
 	virtual bool runBlock();
 
 	void terminateBlock();
-	virtual void terminate(void) {};
+	virtual void terminate(void){};
 
 	void closeOutputSignals();
 
@@ -927,21 +926,18 @@ public:
 	std::vector<Signal *> outputSignals;
 
 private:
+	bool logValue{true};
+	bool firstRun{true}; // To be deleted, 2020/02/04, the name firstTime is more comum
+	bool firstTime{true};
+	bool terminated{false};
 
-	bool logValue{ true };
-	bool firstRun{ true };		// To be deleted, 2020/02/04, the name firstTime is more comum
-	bool firstTime{ true };
-	bool terminated{ false };
+	t_bool verboseMode{true};
 
-	t_bool verboseMode{ true };
+	int numberOfInputSignals{1};
+	int numberOfOutputSignals{1};
 
-	int numberOfInputSignals{ 1 };	
-	int numberOfOutputSignals{ 1 }; 
-
-	t_string verboseFolderName{ "verbose" };
-
+	t_string verboseFolderName{"verbose"};
 };
-
 
 //########################################################################################################################################################
 //####################################################################### CONSOLE ########################################################################
