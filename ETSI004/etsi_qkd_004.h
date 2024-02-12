@@ -47,8 +47,11 @@ namespace etsi_qkd_004 {
     };
 
 
-    // criar duas funções -> signalToMessage e messageToSignal 
+    // criar duas funções -> messageToSignal e signalToMessage
     // (que lida com cada tipo de pedido lá dentro)
+    // (para que seja possível transformar os json em sinais(lado cliente) e os sinais em json(lado server))
+
+    //Exemplo de uma função que transforma um pedido open_connect num sinal para depois ser enviado para o messageHandler
     t_handler_message open_connectToSignal(const json& openConnectJson){
         std::string command = openConnectJson["command"];
         json data = openConnectJson["data"];
@@ -78,6 +81,8 @@ namespace etsi_qkd_004 {
         return message;
     }
 
+//função que deverá ser usada pelo client para fazer um open_connect 
+//devolve um json para que este seja posteriormente convertido num sinal
     json open_connect(const URI &source, const URI &destination, const QoS &qos,
                 const UUID &key_stream_id = "") {
         // Request to json
@@ -105,7 +110,8 @@ namespace etsi_qkd_004 {
         return open_connect_json;
 
     }
-
+//função que deverá ser usada pelo servidor para responder ao open_connect
+//devolve um json para que este seja posteriormente convertido num sinal
     json handle_open_connect(const UUID &key_stream_id, const QoS &qos, Status status){
 
         json open_connect_response_json = {
@@ -132,7 +138,8 @@ namespace etsi_qkd_004 {
         return open_connect_response_json;
     }
 
-
+//função que deverá ser usada pelo client para fazer um pedido get_key
+//devolve um json para que este seja posteriormente convertido num sinal
     json get_key(const UUID &key_stream_id, unsigned int index, const Metadata &metadata = {}) {
         // Request to json
         json get_key_json = {
@@ -155,6 +162,9 @@ namespace etsi_qkd_004 {
 
     }
 
+//função que deverá ser usada pelo servidor para responder ao get_key
+//devolve um json para que este seja posteriormente convertido num sinal
+
     json handle_get_key(const Status status, KeyBuffer key_buffer, unsigned int index, const Metadata &metadata = {}){
         
         //auto key_buffer = kb_json.is_null() ? KeyBuffer {} : KeyBuffer(kb_json.begin(), kb_json.end());
@@ -164,17 +174,22 @@ namespace etsi_qkd_004 {
 
         json get_key_response_json = {
                 {"command", "GET_KEY_RESPONSE"},
-                {"data", {
-                            {"status", status},
-                            {"key_buffer", key_buffer},
-                            {"index", index},
-                            {"metadata", metadata},
+                {"data",  {
+                                {"status", status},
+                                {"key_buffer", key_buffer},
+                                {"index", index},
+                                {"metadata", {
+                                        {"size", metadata.size},
+                                        {"buffer", metadata.buffer}
+                                }},
                         }
                 },
         };
         return get_key_response_json;
     }
 
+//função que deverá ser usada pelo client para fazer um pedido close 
+//devolve um json para que este seja posteriormente transformado num sinal 
     json close(const UUID &key_stream_id) {
         // Request to json
         json close_json = {
@@ -184,6 +199,8 @@ namespace etsi_qkd_004 {
 
         return close_json;
     }
+//função que deverá ser usada pelo servidor para responder ao close
+//devolve um json para que este seja posteriormente transformado num sinal
 
     json handle_close(const Status status){
         
