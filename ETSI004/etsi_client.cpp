@@ -51,6 +51,9 @@ int main() {
     //Transformar o pedido num sinal do tipo t_handler_message
     t_handler_message openConnectSignal = etsi_qkd_004::open_connectToSignal(open_connectJson);
 
+    //Função para enviar openConnectSignal para o MessageHandler
+    
+
     std::cout << "Chegou aqui" << std::endl;
     close(clientSocket);
 

@@ -46,6 +46,9 @@ namespace etsi_qkd_004 {
         GK_METADATA_INSUFFICIENT_SIZE = 8
     };
 
+
+    // criar duas funções -> signalToMessage e messageToSignal 
+    // (que lida com cada tipo de pedido lá dentro)
     t_handler_message open_connectToSignal(const json& openConnectJson){
         std::string command = openConnectJson["command"];
         json data = openConnectJson["data"];
@@ -75,25 +78,8 @@ namespace etsi_qkd_004 {
         return message;
     }
 
-    struct OpenConnectResponse {
-        Status status;
-        std::string key_stream_id;
-        QoS qos;
-    };
-
-    struct GetKeyResponse {
-        Status status;
-        KeyBuffer key_buffer;
-        unsigned int index;
-        Metadata metadata;
-    };
-
-    struct CloseResponse {
-        Status status;
-    };
-
     json open_connect(const URI &source, const URI &destination, const QoS &qos,
-                 const UUID &key_stream_id = "") {
+                const UUID &key_stream_id = "") {
         // Request to json
         json open_connect_json = {
                 {"command", "OPEN_CONNECT"},
@@ -120,6 +106,33 @@ namespace etsi_qkd_004 {
 
     }
 
+    json handle_open_connect(const UUID &key_stream_id, const QoS &qos, Status status){
+
+        json open_connect_response_json = {
+                {"command", "OPEN_CONNECT_RESPONSE"},
+                {"data", {
+                            {"status", status},
+                            {"key_stream_id", key_stream_id},
+                            {"qos", {
+                                                    {"key_chunk_size", qos.key_chunk_size},
+                                                    {"max_bps", qos.max_bps},
+                                                    {"min_bps", qos.min_bps},
+                                                    {"jitter", qos.jitter},
+                                                    {"priority", qos.priority},
+                                                    {"timeout", qos.timeout},
+                                                    {"ttl", qos.ttl},
+                                    }
+                            }
+
+                        }
+                    
+
+                },
+        };
+        return open_connect_response_json;
+    }
+
+
     json get_key(const UUID &key_stream_id, unsigned int index, const Metadata &metadata = {}) {
         // Request to json
         json get_key_json = {
@@ -142,6 +155,26 @@ namespace etsi_qkd_004 {
 
     }
 
+    json handle_get_key(const Status status, KeyBuffer key_buffer, unsigned int index, const Metadata &metadata = {}){
+        
+        //auto key_buffer = kb_json.is_null() ? KeyBuffer {} : KeyBuffer(kb_json.begin(), kb_json.end());
+        //auto r_index = index_json.is_null() ? 0 : (unsigned int) index_json;
+        //auto r_metadata = r_metadata_json.is_null() ? Metadata {0, std::string("")} :
+                          //Metadata {r_metadata_json["size"], r_metadata_json["buffer"]};
+
+        json get_key_response_json = {
+                {"command", "GET_KEY_RESPONSE"},
+                {"data", {
+                            {"status", status},
+                            {"key_buffer", key_buffer},
+                            {"index", index},
+                            {"metadata", metadata},
+                        }
+                },
+        };
+        return get_key_response_json;
+    }
+
     json close(const UUID &key_stream_id) {
         // Request to json
         json close_json = {
@@ -150,7 +183,18 @@ namespace etsi_qkd_004 {
         };
 
         return close_json;
-      
+    }
+
+    json handle_close(const Status status){
+        
+        json close_response_json = {
+                {"command", "CLOSE_RESPONSE"},
+                {"data", {
+                            {"status", status},
+                        }
+                },
+        };
+        return close_response_json;
     }
 }
 
