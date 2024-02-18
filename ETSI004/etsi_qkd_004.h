@@ -165,28 +165,28 @@ namespace etsi_qkd_004 {
 //função que deverá ser usada pelo servidor para responder ao get_key
 //devolve um json para que este seja posteriormente convertido num sinal
 
-    json handle_get_key(const Status status, KeyBuffer key_buffer, unsigned int index, const Metadata &metadata = {}){
-        
-        //auto key_buffer = kb_json.is_null() ? KeyBuffer {} : KeyBuffer(kb_json.begin(), kb_json.end());
-        //auto r_index = index_json.is_null() ? 0 : (unsigned int) index_json;
-        //auto r_metadata = r_metadata_json.is_null() ? Metadata {0, std::string("")} :
-                          //Metadata {r_metadata_json["size"], r_metadata_json["buffer"]};
+    json handle_get_key(const Status status, const KeyBuffer& key_buffer, unsigned int index, const Metadata &metadata = {}) {
+        //Verificar se as condições correspondem ao etsi 
+        auto kb = key_buffer.empty() ? KeyBuffer{} : key_buffer;
+        auto r_index = index;
+        auto r_metadata = metadata.size > 0 ? Metadata{metadata.size, metadata.buffer} : Metadata{0, std::string("")};
 
         json get_key_response_json = {
-                {"command", "GET_KEY_RESPONSE"},
-                {"data",  {
-                                {"status", status},
-                                {"key_buffer", key_buffer},
-                                {"index", index},
-                                {"metadata", {
-                                        {"size", metadata.size},
-                                        {"buffer", metadata.buffer}
-                                }},
-                        }
-                },
+            {"command", "GET_KEY_RESPONSE"},
+            {"data", {
+                        {"status", status},
+                        {"key_buffer", kb},
+                        {"index", r_index},
+                        {"metadata", {
+                                        {"size", r_metadata.size},
+                                        {"buffer", r_metadata.buffer}
+                                    }},
+                }
+            },
         };
         return get_key_response_json;
     }
+
 
 //função que deverá ser usada pelo client para fazer um pedido close 
 //devolve um json para que este seja posteriormente transformado num sinal 
