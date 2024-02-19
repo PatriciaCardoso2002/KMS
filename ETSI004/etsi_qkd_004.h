@@ -51,36 +51,6 @@ namespace etsi_qkd_004 {
     // (que lida com cada tipo de pedido lá dentro)
     // (para que seja possível transformar os json em sinais(lado cliente) e os sinais em json(lado server))
 
-    //Exemplo de uma função que transforma um pedido open_connect num sinal para depois ser enviado para o messageHandler
-    t_handler_message open_connectToSignal(const json& openConnectJson){
-        std::string command = openConnectJson["command"];
-        json data = openConnectJson["data"];
-        URI source = data["source"];
-        URI destination = data["destination"];
-        QoS qos;
-        qos.key_chunk_size = data["qos"]["key_chunk_size"];
-        qos.max_bps = data["qos"]["max_bps"];
-        qos.min_bps = data["qos"]["min_bps"];
-        qos.jitter = data["qos"]["jitter"];
-        qos.priority = data["qos"]["priority"];
-        qos.timeout = data["qos"]["timeout"];
-        qos.ttl = data["qos"]["ttl"];
-        qos.metadata_mimetype = data["qos"]["metadata_mimetype"];
-
-        t_handler_message message;
-
-        //Não posso usar estas funções porque a primeira não está implementada e outras duas são da classe t_message
-/*
-        message.setHeader(destination, source, qos.priority, 0, command, 0, "0");
-
-        message.setMessageType(command);
-
-        message.setMessageData(data.dump());
-*/
-
-        return message;
-    }
-
 //função que deverá ser usada pelo client para fazer um open_connect 
 //devolve um json para que este seja posteriormente convertido num sinal
     json open_connect(const URI &source, const URI &destination, const QoS &qos,

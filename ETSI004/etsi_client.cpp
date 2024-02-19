@@ -50,11 +50,6 @@ int main() {
 
     std::cout << "open_connect passou teste sintaxe" << std::endl;
 
-    //Transformar o pedido num sinal do tipo t_handler_message
-    t_handler_message openConnectSignal = etsi_qkd_004::open_connectToSignal(open_connectJson);
-
-    //Função para enviar openConnectSignal para o MessageHandler(falta criar, é o que é suposto fazer a seguir)
-
     // Teste get_key
     etsi_qkd_004::UUID key_stream_id_get_key = "key_stream_id_for_get_key";
     unsigned int index_get_key = 42;
