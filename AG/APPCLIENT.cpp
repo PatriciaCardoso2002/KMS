@@ -42,17 +42,19 @@ namespace rx {
 
         // nao sei se é necessario utilizar o LoadAscii
         
-     
-        // mensage handler 
-        // TX->RX
-        DestinationTranslationTable dttRxReceiver;
-        dttRxReceiver.add("Msg_Rx", 0);
-        MessageHandler APPReceiver_Rx_{ {&MessagesFromTx_}, {&MessagesFromTx},dttRxReceiver,FUNCTIONING_AS_RX,};
+        //envia
         // RX->TX
         InputTranslationTable ittRxTransmitter;
         ittRxTransmitter.add(0, {"Msg_Tx", "Msg_Rx"});
         MessageHandler APPTransmitter_Rx_{ {&MessagesToTx_Rx},{&MessagesToTx_Rx_},FUNCTIONING_AS_TX,ittRxTransmitter};
+        // mensage handler 
 
+        //recebe
+        // TX->RX
+        DestinationTranslationTable dttRxReceiver;
+        dttRxReceiver.add("Msg_Rx", 0);
+        MessageHandler APPReceiver_Rx_{ {&MessagesFromTx_}, {&MessagesFromTx},dttRxReceiver,FUNCTIONING_AS_RX,};
+        
         // ip tunnel_client_tx -> ip tunnel_server_rx
         IPTunnel IPTunnel_Server_Rx{ {},  {&MessagesFromTx_} };
         IPTunnel_Server_Rx.setLocalMachineIpAddress("127.0.0.1");
@@ -76,11 +78,11 @@ namespace rx {
             };
         
         Console Console_;
-        BlockGetFunction<std::_Mem_fn<std::string (LoadAscii::*)() const>, LoadAscii, std::string> Load_File_Name_{ &LoadAscii_Rx, std::mem_fn(&LoadAscii::getAsciiFileFullName) };
+        /* BlockGetFunction<std::_Mem_fn<std::string (LoadAscii::*)() const>, LoadAscii, std::string> Load_File_Name_{ &LoadAscii_Rx, std::mem_fn(&LoadAscii::getAsciiFileFullName) };
         Console_.addGetFunction("Load File Name", &Load_File_Name_, value_type::t_string);
 
         BlockGetFunction<std::_Mem_fn<unsigned long int (LoadAscii::*)() const>, LoadAscii, unsigned long int> Number_Of_Loaded_Values_{ &LoadAscii_Rx, std::mem_fn(&LoadAscii::getNumberOfLoadedValues) };
-        Console_.addGetFunction("Number of Loaded Values", &Number_Of_Loaded_Values_, value_type::t_unsigned_long_int);
+        Console_.addGetFunction("Number of Loaded Values", &Number_Of_Loaded_Values_, value_type::t_unsigned_long_int); */
 
         BlockGetFunction<std::_Mem_fn<std::string(IPTunnel::*)() const>, IPTunnel, std::string> Local_Machine_Address_{ &IPTunnel_Server_Rx, std::mem_fn(&IPTunnel::getLocalMachineIpAddress) };
         Console_.addGetFunction("Local Machine Address", &Local_Machine_Address_, value_type::t_string);
@@ -127,14 +129,19 @@ namespace tx {
 
         // nao sei se é necessario utilizar o LoadAscii e o SaveAscii
 
-        // RX->TX
-        DestinationTranslationTable dttTxReceiver;
-        dttTxReceiver.add("Msg_Tx", 0);
-        MessageHandler APPReceiver_Tx_{ {&MessagesFromRx_Tx_}, {&MessagesFromRx_Tx},dttTxReceiver,FUNCTIONING_AS_RX,};
+        // enviar
         // TX->RX  
         InputTranslationTable ittTxTransmitter;
         ittTxTransmitter.add(0, {"Msg_Rx", "Msg_Tx"});
         MessageHandler APPTransmitter_Tx_{ {&MessagesToRx_Tx},{&MessagesToRx_Tx_},FUNCTIONING_AS_TX,ittTxTransmitter};
+
+
+        // recetor
+        // RX->TX
+        DestinationTranslationTable dttTxReceiver;
+        dttTxReceiver.add("Msg_Tx", 0);
+        MessageHandler APPReceiver_Tx_{ {&MessagesFromRx_Tx_}, {&MessagesFromRx_Tx},dttTxReceiver,FUNCTIONING_AS_RX,};
+
 
         // ip tunnel_client_Tx -> ip tunnel_server_Rx
         IPTunnel IPTunnel_Client_Tx{ {&MessagesToRx_Tx_}, {} };
@@ -156,8 +163,6 @@ namespace tx {
         System System_
             {
                 {
-                //&LoadAscii_Tx,
-                //&SaveAscii_Tx,
                 &APPReceiver_Tx_,
                 &APPTransmitter_Tx_,
                 &IPTunnel_Client_Tx,
@@ -166,11 +171,6 @@ namespace tx {
             };
         
         Console Console_;
-        BlockGetFunction<std::_Mem_fn<std::string (LoadAscii::*)() const>, LoadAscii, std::string> Load_File_Name_{ &LoadAscii_Tx, std::mem_fn(&LoadAscii::getAsciiFileFullName) };
-        Console_.addGetFunction("Load File Name", &Load_File_Name_, value_type::t_string);
-
-        BlockGetFunction<std::_Mem_fn<unsigned long int (LoadAscii::*)() const>, LoadAscii, unsigned long int> Number_Of_Loaded_Values_{ &LoadAscii_Tx, std::mem_fn(&LoadAscii::getNumberOfLoadedValues) };
-        Console_.addGetFunction("Number of Loaded Values", &Number_Of_Loaded_Values_, value_type::t_unsigned_long_int);
 
         BlockGetFunction<std::_Mem_fn<std::string(IPTunnel::*)() const>, IPTunnel, std::string> Local_Machine_Address_{ &IPTunnel_Server_Tx, std::mem_fn(&IPTunnel::getLocalMachineIpAddress) };
         Console_.addGetFunction("Local Machine Address", &Local_Machine_Address_, value_type::t_string);
@@ -202,8 +202,8 @@ namespace tx {
 
 int main(int argc, char* argv[])
 {
-	tx::main(argc, argv);
-	//rx::main(argc, argv);
+	//tx::main(argc, argv);
+	rx::main(argc, argv);
 
 	return 0;
 }

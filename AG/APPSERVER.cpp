@@ -9,7 +9,7 @@
 
 
 namespace tx {
-    int main(int argc, charw *argv[])
+    int main(int argc, char *argv[])
     {
             // #####################################################################################################
             // ########################### 		 		TX						 ###################################
@@ -20,7 +20,7 @@ namespace tx {
         Signal::t_header_type hType{ Signal::t_header_type::noHeader };
         
         Binary Raw_Tx{ "S0_Raw_Key_Tx.sgn", (t_unsigned_long) 512, hType, sWriteMode};
-        Binary Key_Tx{ "S10_Raw_Key_Tx.sgn", (t_unsigned_long) 512};
+        //Binary Key_Tx{ "S10_Raw_Key_Tx.sgn", (t_unsigned_long) 512};
         Message MessagesToRx_Tx{ "S14_MessagesToRx.sgn", 10, hType, sWriteMode };
         HandlerMessage MessagesToRx_Tx_{ "S14_MessagesToRx.sgn", 10, hType, sWriteMode };
         Message MessagesFromRx_Tx{ "S15_Tx_MessagesFromRx.sgn", 10, hType, sWriteMode };
@@ -33,20 +33,24 @@ namespace tx {
         LoadAscii_Tx.setAsciiFileNameTailNumberModulos(0);
 
 
-        SaveAscii SaveAscii_Tx{ {&Key_Tx}, {} };
+        /* SaveAscii SaveAscii_Tx{ {&Key_Tx}, {} };
         SaveAscii_Tx.setAsciiFolderName("generated_keys");
         SaveAscii_Tx.setAsciiFileName("tx_key");
         SaveAscii_Tx.setAsciiFileNameTailNumber("0");
-        SaveAscii_Tx.setAsciiFileNameTailNumberModulos(0);
+        SaveAscii_Tx.setAsciiFileNameTailNumberModulos(0); */
 
-        // TX_RX
-        DestinationTranslationTable dttTxReceiver;
-        dttTxReceiver.add("Msg_Tx", 0);
-        MessageHandler APPReceiver_Tx_{ {&MessagesFromRx_Tx_}, {&MessagesFromRx_Tx},dttTxReceiver,FUNCTIONING_AS_RX,};
+        //envia
         // TX_TX
         InputTranslationTable ittTxTransmitter;
         ittTxTransmitter.add(0, {"Msg_Rx", "Msg_Tx"});
         MessageHandler APPTransmitter_Tx_{ {&MessagesToRx_Tx},{&MessagesToRx_Tx_},FUNCTIONING_AS_TX,ittTxTransmitter};
+
+        //recebe
+        // TX_RX
+        DestinationTranslationTable dttTxReceiver;
+        dttTxReceiver.add("Msg_Tx", 0);
+        MessageHandler APPReceiver_Tx_{ {&MessagesFromRx_Tx_}, {&MessagesFromRx_Tx},dttTxReceiver,FUNCTIONING_AS_RX,};
+        
             
         IPTunnel IPTunnel_Client_Tx{ {&MessagesToRx_Tx_}, {} };
         IPTunnel_Client_Tx.setLocalMachineIpAddress("127.0.0.1");
@@ -67,7 +71,7 @@ namespace tx {
             {
                 {
                 &LoadAscii_Tx,
-                &SaveAscii_Tx,
+                //&SaveAscii_Tx,
                 &APPReceiver_Tx_,
                 &APPTransmitter_Tx_,
                 &IPTunnel_Client_Tx,
@@ -122,8 +126,8 @@ namespace rx
         Signal::t_write_mode sWriteMode{ Signal::t_write_mode::Ascii };
         Signal::t_header_type hType{ Signal::t_header_type::noHeader };
         
-        Binary Raw_Rx{ "S0_TX_Raw_Key_Tx.sgn", (t_unsigned_long) 512, hType, sWriteMode};
-        Binary Key_Rx{ "S10_Raw_Key_Tx.sgn", (t_unsigned_long) 512};
+        //Binary Raw_Rx{ "S0_TX_Raw_Key_Tx.sgn", (t_unsigned_long) 512, hType, sWriteMode};
+        //Binary Key_Rx{ "S10_Raw_Key_Tx.sgn", (t_unsigned_long) 512};
         Message MessagesToTx_Rx{ "S4_MessagesFromRx.sgn", 10, hType, sWriteMode };
         HandlerMessage MessagesToTx_Rx_{ "S4_MessagesFromRx.sgn", 10, hType, sWriteMode };
         // ####################################################################
@@ -136,20 +140,24 @@ namespace rx
         IPTunnel_Server_Rx.setLocalMachinePort(54001);
         IPTunnel_Server_Rx.setVerboseMode(false);
 
-        LoadAscii LoadAscii_Rx{ {},{&Raw_Rx} };
+        /* LoadAscii LoadAscii_Rx{ {},{&Raw_Rx} };
         LoadAscii_Rx.setAsciiFileName("raw_keys/rx_raw");
         LoadAscii_Rx.setAsciiFileNameTailNumber("0");
         LoadAscii_Rx.setAsciiFileNameExtension(".dat");
         LoadAscii_Rx.setAsciiFileNameTailNumberModulos(0);
+ */
 
+        //envia
+        InputTranslationTable ittRxTransmitter;
+        ittRxTransmitter.add(0, {"Msg_Tx", "Msg_Rx"});
+        MessageHandler APPTransmitter_Rx_{ {&MessagesToTx_Rx},{&MessagesToTx_Rx_},FUNCTIONING_AS_TX,ittRxTransmitter};
+
+        //recebe
         // RX_RX
         DestinationTranslationTable dttRxReceiver;
         dttRxReceiver.add("Msg_Rx", 0);
         MessageHandler APPReceiver_Rx_{ {&MessagesFromTx_}, {&MessagesFromTx},dttRxReceiver,FUNCTIONING_AS_RX,};
-        // RX_TX
-        InputTranslationTable ittRxTransmitter;
-        ittRxTransmitter.add(0, {"Msg_Tx", "Msg_Rx"});
-        MessageHandler APPTransmitter_Rx_{ {&MessagesToTx_Rx},{&MessagesToTx_Rx_},FUNCTIONING_AS_TX,ittRxTransmitter};
+        
             
         IPTunnel IPTunnel_Client_Rx{ {&MessagesToTx_Rx_}, {} };
         IPTunnel_Client_Rx.setLocalMachineIpAddress("127.0.0.1");
@@ -157,19 +165,19 @@ namespace rx
         IPTunnel_Client_Rx.setRemoteMachinePort(54000);
         IPTunnel_Client_Rx.setVerboseMode(false);
 
-        SaveAscii SaveAscii_Rx{ {&Key_Rx}, {} };
+/*         SaveAscii SaveAscii_Rx{ {&Key_Rx}, {} };
         SaveAscii_Rx.setAsciiFolderName("generated_keys");
         SaveAscii_Rx.setAsciiFileName("rx_key");
         SaveAscii_Rx.setAsciiFileNameTailNumber("0");
-        SaveAscii_Rx.setAsciiFileNameTailNumberModulos(0);
+        SaveAscii_Rx.setAsciiFileNameTailNumberModulos(0); */
     // #####################################################################################################
     // ########################### System Declaration and Inicialization ###################################
     // #####################################################################################################
         System System_
             {
                 {
-                &LoadAscii_Rx,
-                &SaveAscii_Rx,
+                /* &LoadAscii_Rx,
+                &SaveAscii_Rx, */
                 &APPReceiver_Rx_,
                 &APPTransmitter_Rx_,
                 &IPTunnel_Client_Rx,
@@ -178,11 +186,11 @@ namespace rx
             };
         
         Console Console_;
-        BlockGetFunction<std::_Mem_fn<std::string (LoadAscii::*)() const>, LoadAscii, std::string> Load_File_Name_{ &LoadAscii_Rx, std::mem_fn(&LoadAscii::getAsciiFileFullName) };
+        /* BlockGetFunction<std::_Mem_fn<std::string (LoadAscii::*)() const>, LoadAscii, std::string> Load_File_Name_{ &LoadAscii_Rx, std::mem_fn(&LoadAscii::getAsciiFileFullName) };
         Console_.addGetFunction("Load File Name", &Load_File_Name_, value_type::t_string);
 
         BlockGetFunction<std::_Mem_fn<unsigned long int (LoadAscii::*)() const>, LoadAscii, unsigned long int> Number_Of_Loaded_Values_{ &LoadAscii_Rx, std::mem_fn(&LoadAscii::getNumberOfLoadedValues) };
-        Console_.addGetFunction("Number of Loaded Values", &Number_Of_Loaded_Values_, value_type::t_unsigned_long_int);
+        Console_.addGetFunction("Number of Loaded Values", &Number_Of_Loaded_Values_, value_type::t_unsigned_long_int); */
 
         BlockGetFunction<std::_Mem_fn<std::string(IPTunnel::*)() const>, IPTunnel, std::string> Local_Machine_Address_{ &IPTunnel_Server_Rx, std::mem_fn(&IPTunnel::getLocalMachineIpAddress) };
         Console_.addGetFunction("Local Machine Address", &Local_Machine_Address_, value_type::t_string);
