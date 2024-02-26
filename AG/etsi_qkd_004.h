@@ -51,36 +51,6 @@ namespace etsi_qkd_004 {
     // (que lida com cada tipo de pedido lá dentro)
     // (para que seja possível transformar os json em sinais(lado cliente) e os sinais em json(lado server))
 
-    //Exemplo de uma função que transforma um pedido open_connect num sinal para depois ser enviado para o messageHandler
-    t_handler_message open_connectToSignal(const json& openConnectJson){
-        std::string command = openConnectJson["command"];
-        json data = openConnectJson["data"];
-        URI source = data["source"];
-        URI destination = data["destination"];
-        QoS qos;
-        qos.key_chunk_size = data["qos"]["key_chunk_size"];
-        qos.max_bps = data["qos"]["max_bps"];
-        qos.min_bps = data["qos"]["min_bps"];
-        qos.jitter = data["qos"]["jitter"];
-        qos.priority = data["qos"]["priority"];
-        qos.timeout = data["qos"]["timeout"];
-        qos.ttl = data["qos"]["ttl"];
-        qos.metadata_mimetype = data["qos"]["metadata_mimetype"];
-
-        t_handler_message message;
-
-        //Não posso usar estas funções porque a primeira não está implementada e outras duas são da classe t_message
-/*
-        message.setHeader(destination, source, qos.priority, 0, command, 0, "0");
-
-        message.setMessageType(command);
-
-        message.setMessageData(data.dump());
-*/
-
-        return message;
-    }
-
 //função que deverá ser usada pelo client para fazer um open_connect 
 //devolve um json para que este seja posteriormente convertido num sinal
     json open_connect(const URI &source, const URI &destination, const QoS &qos,
@@ -165,28 +135,28 @@ namespace etsi_qkd_004 {
 //função que deverá ser usada pelo servidor para responder ao get_key
 //devolve um json para que este seja posteriormente convertido num sinal
 
-    json handle_get_key(const Status status, KeyBuffer key_buffer, unsigned int index, const Metadata &metadata = {}){
-        
-        //auto key_buffer = kb_json.is_null() ? KeyBuffer {} : KeyBuffer(kb_json.begin(), kb_json.end());
-        //auto r_index = index_json.is_null() ? 0 : (unsigned int) index_json;
-        //auto r_metadata = r_metadata_json.is_null() ? Metadata {0, std::string("")} :
-                          //Metadata {r_metadata_json["size"], r_metadata_json["buffer"]};
+    json handle_get_key(const Status status, const KeyBuffer& key_buffer, unsigned int index, const Metadata &metadata = {}) {
+        //Verificar se as condições correspondem ao etsi 
+        auto kb = key_buffer.empty() ? KeyBuffer{} : key_buffer;
+        auto r_index = index;
+        auto r_metadata = metadata.size > 0 ? Metadata{metadata.size, metadata.buffer} : Metadata{0, std::string("")};
 
         json get_key_response_json = {
-                {"command", "GET_KEY_RESPONSE"},
-                {"data",  {
-                                {"status", status},
-                                {"key_buffer", key_buffer},
-                                {"index", index},
-                                {"metadata", {
-                                        {"size", metadata.size},
-                                        {"buffer", metadata.buffer}
-                                }},
-                        }
-                },
+            {"command", "GET_KEY_RESPONSE"},
+            {"data", {
+                        {"status", status},
+                        {"key_buffer", kb},
+                        {"index", r_index},
+                        {"metadata", {
+                                        {"size", r_metadata.size},
+                                        {"buffer", r_metadata.buffer}
+                                    }},
+                }
+            },
         };
         return get_key_response_json;
     }
+
 
 //função que deverá ser usada pelo client para fazer um pedido close 
 //devolve um json para que este seja posteriormente transformado num sinal 

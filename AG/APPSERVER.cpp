@@ -6,6 +6,7 @@
 #include "save_ascii_20200819.h"
 #include "ip_tunnel_ms_windows_20200819.h"
 #include "ms_windows_console_output_common_20200819.h"
+#include
 
 
 namespace tx {
@@ -55,13 +56,13 @@ namespace tx {
         IPTunnel IPTunnel_Client_Tx{ {&MessagesToRx_Tx_}, {} };
         IPTunnel_Client_Tx.setLocalMachineIpAddress("127.0.0.1");
         IPTunnel_Client_Tx.setRemoteMachineIpAddress("127.0.0.1");
-        IPTunnel_Client_Tx.setRemoteMachinePort(54000);
+        IPTunnel_Client_Tx.setRemoteMachinePort(54001);
         IPTunnel_Client_Tx.setVerboseMode(false);
 
         IPTunnel IPTunnel_Server_Tx{ {}, {&MessagesFromRx_Tx_} };
         IPTunnel_Server_Tx.setLocalMachineIpAddress("127.0.0.1");
         IPTunnel_Server_Tx.setRemoteMachineIpAddress("127.0.0.1");
-        IPTunnel_Server_Tx.setLocalMachinePort(54001);
+        IPTunnel_Server_Tx.setLocalMachinePort(54000);
         IPTunnel_Server_Tx.setVerboseMode(false);
         
     // #####################################################################################################
@@ -137,7 +138,7 @@ namespace rx
         IPTunnel IPTunnel_Server_Rx{ {},  {&MessagesFromTx_} };
         IPTunnel_Server_Rx.setLocalMachineIpAddress("127.0.0.1");
         IPTunnel_Server_Rx.setRemoteMachineIpAddress("127.0.0.1");
-        IPTunnel_Server_Rx.setLocalMachinePort(54001);
+        IPTunnel_Server_Rx.setLocalMachinePort(54000);
         IPTunnel_Server_Rx.setVerboseMode(false);
 
         /* LoadAscii LoadAscii_Rx{ {},{&Raw_Rx} };
@@ -162,7 +163,7 @@ namespace rx
         IPTunnel IPTunnel_Client_Rx{ {&MessagesToTx_Rx_}, {} };
         IPTunnel_Client_Rx.setLocalMachineIpAddress("127.0.0.1");
         IPTunnel_Client_Rx.setRemoteMachineIpAddress("127.0.0.1");
-        IPTunnel_Client_Rx.setRemoteMachinePort(54000);
+        IPTunnel_Client_Rx.setRemoteMachinePort(54001);
         IPTunnel_Client_Rx.setVerboseMode(false);
 
 /*         SaveAscii SaveAscii_Rx{ {&Key_Rx}, {} };
@@ -222,8 +223,8 @@ namespace rx
 
 int main(int argc, char* argv[])
 {
-	//tx::main(argc, argv);
-	rx::main(argc, argv);
+	tx::main(argc, argv);
+	//rx::main(argc, argv);
 
 	return 0;
 }
