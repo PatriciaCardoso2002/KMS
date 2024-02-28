@@ -14,7 +14,7 @@
         Signal::t_write_mode sWriteMode{ Signal::t_write_mode::Ascii };
         Signal::t_header_type hType{ Signal::t_header_type::noHeader };
         
-        Binary Key_Rx{ "S10_Raw_Key_Tx.sgn", (t_unsigned_long) 512};
+        Binary Key_Rx{ "S10_Raw_Key_Tx.sgn", (t_unsigned_long) 512, hType, sWriteMode};
         Message MessagesToTx_Rx{ "S4_MessagesFromRx.sgn", 10, hType, sWriteMode };
         HandlerMessage MessagesToTx_Rx_{ "S4_MessagesFromRx.sgn", 10, hType, sWriteMode };
         // ####################################################################
@@ -48,7 +48,7 @@
         // TX->RX
         DestinationTranslationTable dttRxReceiver;
         dttRxReceiver.add("Msg_Rx", 0);
-        MessageHandler APPReceiver_Rx_{ {&MessagesFromTx_}, {&MessagesFromTx},dttRxReceiver,FUNCTIONING_AS_RX,};
+        MessageHandler APPReceiver_Rx_{ {&MessagesFromTx_}, {&Key_Rx},dttRxReceiver,FUNCTIONING_AS_RX,};
         
         // ip tunnel_client_tx -> ip tunnel_server_rx
         IPTunnel IPTunnel_Server_Rx{ {},  {&MessagesFromTx_} };

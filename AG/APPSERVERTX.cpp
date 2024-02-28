@@ -46,7 +46,7 @@ int main(){
 	// TX_TX
 	InputTranslationTable ittTxTransmitter;
 	ittTxTransmitter.add(0, {"Msg_Rx", "Msg_Tx"});
-	MessageHandler APPTransmitter_Tx_{ {&MessagesToRx_Tx},{&MessagesToRx_Tx_},FUNCTIONING_AS_TX,ittTxTransmitter};
+	MessageHandler APPTransmitter_Tx_{ {&Raw_Tx},{&MessagesToRx_Tx_},FUNCTIONING_AS_TX,ittTxTransmitter};
 		
 	IPTunnel IPTunnel_Client_Tx{ {&MessagesToRx_Tx_}, {} };
 	IPTunnel_Client_Tx.setLocalMachineIpAddress("127.0.0.1");
