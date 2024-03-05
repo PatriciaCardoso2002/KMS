@@ -1,0 +1,4 @@
+/home/patricia/Desktop/KMS/ETSI004/build/CMakeFiles/rebuild_cache.dir
+/home/patricia/Desktop/KMS/ETSI004/build/CMakeFiles/etsi_server.dir
+/home/patricia/Desktop/KMS/ETSI004/build/CMakeFiles/edit_cache.dir
+/home/patricia/Desktop/KMS/ETSI004/build/CMakeFiles/etsi_client.dir

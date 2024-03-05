@@ -1,0 +1,1 @@
+/usr/bin/c++   -Wall -Wextra -O3   CMakeFiles/etsi_client.dir/etsi_client.cpp.o CMakeFiles/etsi_client.dir/etsi_qkd_004.cpp.o  -o ../bin/etsi_client 
