@@ -3,6 +3,7 @@ O etsi_client.cpp e o etsi_server.cpp servem apenas para testar a sintaxe das fu
 Compilação no diretorio build:
 
 cmake ..
+
 make 
 
 Dois terminais no diretorio bin:
