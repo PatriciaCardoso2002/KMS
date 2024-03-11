@@ -33,16 +33,18 @@ int main(){
     
     LoadRequest LoadRequest_Tx{ {},{&open_connect} };
     LoadRequest_Tx.setRequest("REQUEST");
+
+    // RX
+    DestinationTranslationTable dttRxTransmitter;
+    dttRxTransmitter.add("Msg_Tx", 0);
+    MessageHandler MessageHandlerClientRX{ {&response_},{&response},dttRxTransmitter,FUNCTIONING_AS_RX};
     
     // TX
     InputTranslationTable ittTxTransmitter;
     ittTxTransmitter.add(0, {"Msg_Rx", "Msg_Tx"});
-    MessageHandler MessageHandlerTX{ {&open_connect},{&open_connect_},FUNCTIONING_AS_TX,ittTxTransmitter};
+    MessageHandler MessageHandlerClientTX{ {&open_connect},{&open_connect_},FUNCTIONING_AS_TX,ittTxTransmitter};
     
-    // RX
-    DestinationTranslationTable dttRxTransmitter;
-    dttRxTransmitter.add("Msg_Tx", 0);
-    MessageHandler MessageHandlerRX{ {&response_},{&response},dttRxTransmitter,FUNCTIONING_AS_RX};
+   
 
     // std::cout << "Empty? " << open_connect_.getBufferEmpty() << std::endl;
 
@@ -52,29 +54,29 @@ int main(){
     //     std::cout << "Request:" << data << std::endl;
     // }
 
-    IPTunnel IPTunnel_Client_Tx{{&open_connect_},{}};
-    IPTunnel_Client_Tx.setLocalMachineIpAddress("127.0.0.1");
-    IPTunnel_Client_Tx.setRemoteMachineIpAddress("127.0.0.1");
-    IPTunnel_Client_Tx.setRemoteMachinePort(54000);
-    IPTunnel_Client_Tx.setVerboseMode(true);
+    IPTunnel IPTunnelClient_Client{{&open_connect_},{}};
+    IPTunnelClient_Client.setLocalMachineIpAddress("127.0.0.1");
+    IPTunnelClient_Client.setRemoteMachineIpAddress("127.0.0.1");
+    IPTunnelClient_Client.setRemoteMachinePort(54000);
+    IPTunnelClient_Client.setVerboseMode(true);
 
-    IPTunnel IPTunnel_Client_Rx{{},{&response_}};
-    IPTunnel_Client_Tx.setLocalMachineIpAddress("127.0.0.1");
-    IPTunnel_Client_Tx.setRemoteMachineIpAddress("127.0.0.1");
-    IPTunnel_Client_Tx.setLocalMachinePort(54001);
-    IPTunnel_Client_Tx.setVerboseMode(true);
+    IPTunnel IPTunnelClient_Server{{},{&response_}};
+    IPTunnelClient_Server.setLocalMachineIpAddress("127.0.0.1");
+    IPTunnelClient_Server.setRemoteMachineIpAddress("127.0.0.1");
+    IPTunnelClient_Server.setLocalMachinePort(54001);
+    IPTunnelClient_Server.setVerboseMode(true);
 
     System System_
             {
                 {
                 &LoadRequest_Tx,
-                &MessageHandlerRX,
-                &MessageHandlerTX,
-                &IPTunnel_Client_Tx,
-                //&IPTunnel_Client_Rx,
+                &MessageHandlerClientRX,
+                &MessageHandlerClientTX,
+                &IPTunnelClient_Client,
+                &IPTunnelClient_Server,
                 }
             };
-    System_.setLogFileName("log_client.txt");
+    // System_.setLogFileName("log_client.txt");
 
     //  Console Console_;
     // BlockGetFunction<std::_Mem_fn<std::string (LoadAscii::*)() const>, LoadAscii, std::string> Load_File_Name_{ &LoadAscii_Tx, std::mem_fn(&LoadAscii::getAsciiFileFullName) };
@@ -89,10 +91,10 @@ int main(){
     // BlockGetFunction<std::_Mem_fn<int (IPTunnel::*)() const>, IPTunnel, int> Local_Machine_Port_{ &IPTunnel_Server_Tx, std::mem_fn(&IPTunnel::getLocalMachinePort) };
     // Console_.addGetFunction("Local Machine Receiving Port", &Local_Machine_Port_, value_type::t_int);
 
-    // BlockGetFunction<std::_Mem_fn<std::string(IPTunnel::*)() const>, IPTunnel, std::string> Remote_Machine_Address_{ &IPTunnel_Client_Tx, std::mem_fn(&IPTunnel::getRemoteMachineIpAddress) };
+    // BlockGetFunction<std::_Mem_fn<std::string(IPTunnel::*)() const>, IPTunnel, std::string> Remote_Machine_Address_{ &IPTunnel_Client_Client, std::mem_fn(&IPTunnel::getRemoteMachineIpAddress) };
     // Console_.addGetFunction("Remote Machine Address", &Remote_Machine_Address_, value_type::t_string);
 
-    // BlockGetFunction<std::_Mem_fn<int (IPTunnel::*)() const>, IPTunnel, int> Remote_Machine_Port_{ &IPTunnel_Client_Tx, std::mem_fn(&IPTunnel::getRemoteMachinePort) };
+    // BlockGetFunction<std::_Mem_fn<int (IPTunnel::*)() const>, IPTunnel, int> Remote_Machine_Port_{ &IPTunnel_Client_Client, std::mem_fn(&IPTunnel::getRemoteMachinePort) };
     // Console_.addGetFunction("Remote Machine Receiving Port", &Remote_Machine_Port_, value_type::t_int);
 
     System_.run();
