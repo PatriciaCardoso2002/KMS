@@ -244,6 +244,7 @@ bool MessageHandler::runBlock(void)
     {
         if (it->lowerPriority())
             alive = true;
+            std::cout << "ALIVE CHANGE" << std::endl;
     }
 
     // Check and remove messages from buffers and place in output signals
@@ -324,6 +325,8 @@ t_handler_message MessageHandler::convert_to_message(
                   std::to_string(messageText.size()));
     msg.setMessageData(messageText);
 
+    std::cout << msg << std::endl;
+
     // Update sequential ID of the saved data in the InputSignalInfo class
     inputSignalTranslation->edit(InputSignalIndex, signalInfo);
     return msg;
@@ -367,6 +370,7 @@ void MessageHandler::disconvert_from_message(
         t_string data = msg.getMessageData();
         t_message m;
         m.messageRaw = data;
+        std::cout << "Output Signal (Message): " << m << std::endl;
         outputSignals[outputSignalIndex]->bufferPut(m);
     }
     // More signal translations can be added here
@@ -456,12 +460,14 @@ void MessageHandler::send_to_output_signals()
         while (!signalInternalBuffer->empty() && availableSpace > 0)
         {
             t_handler_message msg = signalInternalBuffer->back();
+            std::cout << "Output Signal: " << msg << std::endl;
             // Check if the output signal is different that message and call
             //  the function to translate it to the desired type
-            if (outputSignals[signalIndex]->getValueType() == signal_value_type::t_handler_message)
+            if (outputSignals[signalIndex]->getValueType() == signal_value_type::t_handler_message){
+                std::cout << "Entra no if" << std::endl;
                 outputSignals[signalIndex]->bufferPut(msg);
-            else
-                disconvert_from_message(msg, signalIndex);
+            } else{
+                disconvert_from_message(msg, signalIndex);}
             signalInternalBuffer->pop_back();
             availableSpace--;
         }
