@@ -1,1 +1,0 @@
-/usr/bin/c++   -Wall -Wextra -O3   CMakeFiles/etsi_server.dir/etsi_server.cpp.o CMakeFiles/etsi_server.dir/etsi_qkd_004.cpp.o  -o ../bin/etsi_server 
