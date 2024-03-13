@@ -7,6 +7,7 @@
 #include "ip_tunnel_ms_windows_20200819.h"
 #include "ms_windows_console_output_common_20200819.h"
 #include "load_request.h"
+#include "receive_request.h"
 //outputAPP1 tx tx -> iptunnel/ rx tx / rx rx / tx rx / tx tx -> ip tunnel
 //message_handler() do get key; RX (input etsi(open_connect,get_key,close,status), output parametros)
 
@@ -42,8 +43,10 @@
         SaveAscii_Rx.setAsciiFileNameTailNumber("0");
         SaveAscii_Rx.setAsciiFileNameTailNumberModulos(0); */
 
-        LoadRequest LoadAscii_Rx{ {},{&Raw_Rx} };
-        LoadAscii_Rx.setRequest("MMMMMMMMMMMMMMMMMMMMMMMM");
+        /* LoadRequest LoadAscii_Rx{ {},{&Raw_Rx} };
+        LoadAscii_Rx.setRequest("MMMMMMMMMMMMMMMMMMMMMMMM"); */
+
+
 
         // nao sei se é necessario utilizar o LoadAscii
         
