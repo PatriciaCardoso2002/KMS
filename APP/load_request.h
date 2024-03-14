@@ -54,7 +54,7 @@ double symbolPeriod{ 1 };
 double auxMultiply = 1;
 signal_value_type dataType{ signal_value_type::t_char };
 delimiter_type delimiterType{ delimiter_type::ConcatenatedValues };
-t_string request = "{\"command\":\"OPEN_CONNECT\",\"data\":{\"source\":\"source\",\"destination\":\"destination\",\"qos\":{\"key_chunk_size\":3,\"max_bps\":5,\"min_bps\":1,\"jitter\":4,\"priority\":5,\"timeout\":0,\"ttl\":10,\"metadata_mimetype\":\"metadata\"},\"key_stream_id\":\"key_stream_id\"}";
+t_string request = "{\"command\":\"OPEN_CONNECT\",\"data\":{\"source\":\"source\",\"destination\":\"destination\",\"qos\":{\"key_chunk_size\":3,\"max_bps\":5,\"min_bps\":1,\"jitter\":4,\"priority\":5,\"timeout\":0,\"ttl\":10,\"metadata_mimetype\":\"metadata\"},\"key_stream_id\":\"key_stream_id\"}}";
 
 
 bool cycleModulos = true; // mandates if the program should read files on loop (module)

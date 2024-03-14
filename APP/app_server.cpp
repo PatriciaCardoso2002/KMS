@@ -8,6 +8,7 @@
 #include "load_request.h"
 #include "ms_windows_console_output_common_20200819.h"
 #include "ip_tunnel_ms_windows_20200819.h"
+#include "receive_request.h"
 
 int main(){
     
@@ -27,41 +28,48 @@ int main(){
     Signal::t_write_mode sWriteMode{ Signal::t_write_mode::Ascii};
     Signal::t_header_type hType{ Signal::t_header_type::fullHeader };
 
-    Message open_connect{"Server_open_connect.sgn",10,hType,sWriteMode};
-    HandlerMessage open_connect_{"Server_open_connect_.sgn",10,hType,sWriteMode};
+    Message request{"Server_request.sgn",10,hType,sWriteMode};
+    HandlerMessage request_{"Server_request_.sgn",10,hType,sWriteMode};
     Message response{"Server_response.sgn",10,hType,sWriteMode};
     HandlerMessage response_{"Server_response_.sgn",10,hType,sWriteMode};
 
-
-    IPTunnel IPTunnelServer_Server{{},{&open_connect_}};
+    IPTunnel IPTunnelServer_Server{{},{&request_}};
     IPTunnelServer_Server.setLocalMachineIpAddress("127.0.0.1");
     IPTunnelServer_Server.setRemoteMachineIpAddress("127.0.0.1");
     IPTunnelServer_Server.setLocalMachinePort(54000);
     IPTunnelServer_Server.setVerboseMode(true);
 
-    LoadRequest LoadRequest_Rx{{},{&response}};
-    LoadRequest_Rx.setRequest("RESPOSTA");
+    // LoadRequest LoadRequest_Rx{{},{&response}};
+    // LoadRequest_Rx.setRequest("{\"command\":\"OPEN_CONNECT_RESPONSE\",\"data\":{\"source\":\"source\",\"destination\":\"destination\",\"qos\":{\"key_chunk_size\":3,\"max_bps\":5,\"min_bps\":1,\"jitter\":4,\"priority\":5,\"timeout\":0,\"ttl\":10,\"metadata_mimetype\":\"metadata\"},\"key_stream_id\":\"key_stream_id\"}}");
 
     // RX
     DestinationTranslationTable dttRxTransmitter;
     dttRxTransmitter.add("Msg_Rx", 0);
-    MessageHandler MessageHandlerServerRX{ {&open_connect_},{&open_connect},dttRxTransmitter,FUNCTIONING_AS_RX};
+    MessageHandler MessageHandlerServerRX{ {&request_},{&request},dttRxTransmitter,FUNCTIONING_AS_RX};
 
     // TX
     InputTranslationTable ittTxTransmitter;
     ittTxTransmitter.add(0, {"Msg_Tx", "Msg_Rx"});
     MessageHandler MessageHandlerServerTX{ {&response},{&response_},FUNCTIONING_AS_TX,ittTxTransmitter};
     
+    ReceiveRequest receiveRequest_Rx{{&request}, {&response}};
+    receiveRequest_Rx.setVerboseMode(true);
+
     IPTunnel IPTunnelServer_Client{{&response_},{}};
     IPTunnelServer_Client.setLocalMachineIpAddress("127.0.0.1");
     IPTunnelServer_Client.setRemoteMachineIpAddress("127.0.0.1");
     IPTunnelServer_Client.setRemoteMachinePort(54001);
     IPTunnelServer_Client.setVerboseMode(false);
 
+    
+
+   
+
+
    
     
-    // if (!open_connect.getBufferEmpty()){
-    //     t_message* msg = open_connect.bufferGet();
+    // if (!request.getBufferEmpty()){
+    //     t_message* msg = request.bufferGet();
     //     t_string data = msg->getMessageData();
     //     std::cout << "Request:" << data << std::endl;
     // }
@@ -69,8 +77,9 @@ int main(){
     System System_
             {
                 {
-                &LoadRequest_Rx,
+                //&LoadRequest_Rx,
                 &MessageHandlerServerRX,
+                &receiveRequest_Rx,
                 &MessageHandlerServerTX,
                 &IPTunnelServer_Client,
                 &IPTunnelServer_Server,

@@ -8,6 +8,7 @@
 #include "load_request.h"
 #include "ms_windows_console_output_common_20200819.h"
 #include "ip_tunnel_ms_windows_20200819.h"
+#include "receive_request.h"
 
 int main(){
     
@@ -26,13 +27,12 @@ int main(){
 
     Signal::t_write_mode sWriteMode{ Signal::t_write_mode::Ascii};
     Signal::t_header_type hType{ Signal::t_header_type::fullHeader };
-    Message open_connect{"Client_open_connect.sgn",10,hType,sWriteMode};
-    HandlerMessage open_connect_{"Client_open_connect_.sgn",10,hType,sWriteMode};
+    Message request{"Client_request.sgn",10,hType,sWriteMode};
+    HandlerMessage request_{"Client_request_.sgn",10,hType,sWriteMode};
     Message response{"Client_response.sgn",10,hType,sWriteMode};
     HandlerMessage response_{"Client_response_.sgn",10,hType,sWriteMode};
     
-    LoadRequest LoadRequest_Tx{ {},{&open_connect} };
-    LoadRequest_Tx.setRequest("REQUEST");
+    LoadRequest LoadRequest_Tx{ {},{&request} };
 
     // RX
     DestinationTranslationTable dttRxTransmitter;
@@ -42,19 +42,19 @@ int main(){
     // TX
     InputTranslationTable ittTxTransmitter;
     ittTxTransmitter.add(0, {"Msg_Rx", "Msg_Tx"});
-    MessageHandler MessageHandlerClientTX{ {&open_connect},{&open_connect_},FUNCTIONING_AS_TX,ittTxTransmitter};
+    MessageHandler MessageHandlerClientTX{ {&request},{&request_},FUNCTIONING_AS_TX,ittTxTransmitter};
     
    
 
-    // std::cout << "Empty? " << open_connect_.getBufferEmpty() << std::endl;
+    // std::cout << "Empty? " << request_.getBufferEmpty() << std::endl;
 
-    // if (!open_connect_.getBufferEmpty()){
-    //     t_handler_message* msg = open_connect_.bufferGet();
+    // if (!request_.getBufferEmpty()){
+    //     t_handler_message* msg = request_.bufferGet();
     //     t_string data = msg->getMessageData();
     //     std::cout << "Request:" << data << std::endl;
     // }
 
-    IPTunnel IPTunnelClient_Client{{&open_connect_},{}};
+    IPTunnel IPTunnelClient_Client{{&request_},{}};
     IPTunnelClient_Client.setLocalMachineIpAddress("127.0.0.1");
     IPTunnelClient_Client.setRemoteMachineIpAddress("127.0.0.1");
     IPTunnelClient_Client.setRemoteMachinePort(54000);
@@ -66,14 +66,19 @@ int main(){
     IPTunnelClient_Server.setLocalMachinePort(54001);
     IPTunnelClient_Server.setVerboseMode(true);
 
+    ReceiveRequest receiveRequest_Tx{{&response}, {&request}};
+    receiveRequest_Tx.setVerboseMode(true);
+
     System System_
             {
                 {
                 &LoadRequest_Tx,
                 &MessageHandlerClientRX,
+                &receiveRequest_Tx,
                 &MessageHandlerClientTX,
                 &IPTunnelClient_Client,
                 &IPTunnelClient_Server,
+                
                 }
             };
     // System_.setLogFileName("log_client.txt");
