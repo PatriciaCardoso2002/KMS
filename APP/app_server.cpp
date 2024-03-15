@@ -8,7 +8,7 @@
 #include "load_request.h"
 #include "ms_windows_console_output_common_20200819.h"
 #include "ip_tunnel_ms_windows_20200819.h"
-#include "receive_request.h"
+#include "receive_ETSI004.h"
 
 int main(){
     
@@ -51,15 +51,15 @@ int main(){
     InputTranslationTable ittTxTransmitter;
     ittTxTransmitter.add(0, {"Msg_Tx", "Msg_Rx"});
     MessageHandler MessageHandlerServerTX{ {&response},{&response_},FUNCTIONING_AS_TX,ittTxTransmitter};
-    
-    ReceiveRequest receiveRequest_Rx{{&request}, {&response}};
-    receiveRequest_Rx.setVerboseMode(true);
 
     IPTunnel IPTunnelServer_Client{{&response_},{}};
     IPTunnelServer_Client.setLocalMachineIpAddress("127.0.0.1");
     IPTunnelServer_Client.setRemoteMachineIpAddress("127.0.0.1");
     IPTunnelServer_Client.setRemoteMachinePort(54001);
     IPTunnelServer_Client.setVerboseMode(false);
+
+    ReceiveETSI004 receiveRequest_Rx{{&request}, {&response}};
+    receiveRequest_Rx.setVerboseMode(true);
 
     
 
@@ -79,8 +79,8 @@ int main(){
                 {
                 //&LoadRequest_Rx,
                 &MessageHandlerServerRX,
-                &receiveRequest_Rx,
                 &MessageHandlerServerTX,
+                &receiveRequest_Rx,
                 &IPTunnelServer_Client,
                 &IPTunnelServer_Server,
                 }

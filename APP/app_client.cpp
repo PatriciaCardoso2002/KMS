@@ -8,7 +8,7 @@
 #include "load_request.h"
 #include "ms_windows_console_output_common_20200819.h"
 #include "ip_tunnel_ms_windows_20200819.h"
-#include "receive_request.h"
+#include "receive_ETSI004.h"
 
 int main(){
     
@@ -38,7 +38,7 @@ int main(){
     DestinationTranslationTable dttRxTransmitter;
     dttRxTransmitter.add("Msg_Tx", 0);
     MessageHandler MessageHandlerClientRX{ {&response_},{&response},dttRxTransmitter,FUNCTIONING_AS_RX};
-    
+
     // TX
     InputTranslationTable ittTxTransmitter;
     ittTxTransmitter.add(0, {"Msg_Rx", "Msg_Tx"});
@@ -54,6 +54,8 @@ int main(){
     //     std::cout << "Request:" << data << std::endl;
     // }
 
+    
+
     IPTunnel IPTunnelClient_Client{{&request_},{}};
     IPTunnelClient_Client.setLocalMachineIpAddress("127.0.0.1");
     IPTunnelClient_Client.setRemoteMachineIpAddress("127.0.0.1");
@@ -66,16 +68,19 @@ int main(){
     IPTunnelClient_Server.setLocalMachinePort(54001);
     IPTunnelClient_Server.setVerboseMode(true);
 
-    ReceiveRequest receiveRequest_Tx{{&response}, {&request}};
+    ReceiveETSI004 receiveRequest_Tx{{&response}, {&request}};
     receiveRequest_Tx.setVerboseMode(true);
+
+
+    
 
     System System_
             {
                 {
                 &LoadRequest_Tx,
                 &MessageHandlerClientRX,
-                &receiveRequest_Tx,
                 &MessageHandlerClientTX,
+                &receiveRequest_Tx,
                 &IPTunnelClient_Client,
                 &IPTunnelClient_Server,
                 
@@ -102,7 +107,9 @@ int main(){
     // BlockGetFunction<std::_Mem_fn<int (IPTunnel::*)() const>, IPTunnel, int> Remote_Machine_Port_{ &IPTunnel_Client_Client, std::mem_fn(&IPTunnel::getRemoteMachinePort) };
     // Console_.addGetFunction("Remote Machine Receiving Port", &Remote_Machine_Port_, value_type::t_int);
 
+    std::cout << "ANTES DE TERMINAR" << std::endl;
     System_.run();
+    
     System_.terminate();
 
     return 0;
