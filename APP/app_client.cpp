@@ -9,6 +9,7 @@
 #include "ms_windows_console_output_common_20200819.h"
 #include "ip_tunnel_ms_windows_20200819.h"
 #include "receive_ETSI004.h"
+#include "etsi_qkd_004.h"
 
 int main(){
     
@@ -32,7 +33,7 @@ int main(){
     Message response{"Client_response.sgn",10,hType,sWriteMode};
     HandlerMessage response_{"Client_response_.sgn",10,hType,sWriteMode};
     
-    LoadRequest LoadRequest_Tx{ {},{&request} };
+    // LoadRequest LoadRequest_Tx{ {},{&request} };
 
     // RX
     DestinationTranslationTable dttRxTransmitter;
@@ -69,6 +70,7 @@ int main(){
     IPTunnelClient_Server.setVerboseMode(true);
 
     ReceiveETSI004 receiveRequest_Tx{{&response}, {&request}};
+    receiveRequest_Tx.setID("Tx");
     receiveRequest_Tx.setVerboseMode(true);
 
 
@@ -77,7 +79,7 @@ int main(){
     System System_
             {
                 {
-                &LoadRequest_Tx,
+                //&LoadRequest_Tx,
                 &MessageHandlerClientRX,
                 &MessageHandlerClientTX,
                 &receiveRequest_Tx,

@@ -9,6 +9,7 @@
 #include "ms_windows_console_output_common_20200819.h"
 #include "ip_tunnel_ms_windows_20200819.h"
 #include "receive_ETSI004.h"
+#include "etsi_qkd_004.h"
 
 int main(){
     
@@ -32,6 +33,13 @@ int main(){
     HandlerMessage request_{"Server_request_.sgn",10,hType,sWriteMode};
     Message response{"Server_response.sgn",10,hType,sWriteMode};
     HandlerMessage response_{"Server_response_.sgn",10,hType,sWriteMode};
+    Binary key{"key.sgn",1034,hType,sWriteMode};
+
+    LoadAscii keyLoader({},{&key});
+    keyLoader.setAsciiFileName("raw_keys/rx_raw");
+    // keyLoader.setAsciiFileNameExtension(".dat");
+    keyLoader.setAsciiFileNameTailNumber("0");
+    keyLoader.setAsciiFileNameTailNumberModulos(1);
 
     IPTunnel IPTunnelServer_Server{{},{&request_}};
     IPTunnelServer_Server.setLocalMachineIpAddress("127.0.0.1");
@@ -58,7 +66,11 @@ int main(){
     IPTunnelServer_Client.setRemoteMachinePort(54001);
     IPTunnelServer_Client.setVerboseMode(false);
 
-    ReceiveETSI004 receiveRequest_Rx{{&request}, {&response}};
+    
+
+
+    ReceiveETSI004 receiveRequest_Rx{{&request, &key}, {&response}};
+    receiveRequest_Rx.setID("Rx");
     receiveRequest_Rx.setVerboseMode(true);
 
     
@@ -77,7 +89,7 @@ int main(){
     System System_
             {
                 {
-                //&LoadRequest_Rx,
+                &keyLoader,
                 &MessageHandlerServerRX,
                 &MessageHandlerServerTX,
                 &receiveRequest_Rx,

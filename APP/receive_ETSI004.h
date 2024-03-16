@@ -11,6 +11,9 @@ public:
     void initialize(void);
     bool runBlock(void);
 
+    void setID(t_string Id){ID = Id;};
+    t_string getID(){return ID;};
+
     std::vector<t_message> storedMessages = {};
 
 
@@ -19,6 +22,8 @@ public:
 
 
 private:
+
+t_string ID;
 
 t_integer ready;
 t_integer i;
