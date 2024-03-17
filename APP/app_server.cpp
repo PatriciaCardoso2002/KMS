@@ -33,7 +33,7 @@ int main(){
     HandlerMessage request_{"Server_request_.sgn",10,hType,sWriteMode};
     Message response{"Server_response.sgn",10,hType,sWriteMode};
     HandlerMessage response_{"Server_response_.sgn",10,hType,sWriteMode};
-    Binary key{"key.sgn",1034,hType,sWriteMode};
+    Binary key{"Server_key.sgn",1024,hType,sWriteMode};
 
     LoadAscii keyLoader({},{&key});
     keyLoader.setAsciiFileName("raw_keys/rx_raw");
@@ -45,7 +45,7 @@ int main(){
     IPTunnelServer_Server.setLocalMachineIpAddress("127.0.0.1");
     IPTunnelServer_Server.setRemoteMachineIpAddress("127.0.0.1");
     IPTunnelServer_Server.setLocalMachinePort(54000);
-    IPTunnelServer_Server.setVerboseMode(true);
+    IPTunnelServer_Server.setVerboseMode(false);
 
     // LoadRequest LoadRequest_Rx{{},{&response}};
     // LoadRequest_Rx.setRequest("{\"command\":\"OPEN_CONNECT_RESPONSE\",\"data\":{\"source\":\"source\",\"destination\":\"destination\",\"qos\":{\"key_chunk_size\":3,\"max_bps\":5,\"min_bps\":1,\"jitter\":4,\"priority\":5,\"timeout\":0,\"ttl\":10,\"metadata_mimetype\":\"metadata\"},\"key_stream_id\":\"key_stream_id\"}}");
@@ -54,7 +54,7 @@ int main(){
     DestinationTranslationTable dttRxTransmitter;
     dttRxTransmitter.add("Msg_Rx", 0);
     MessageHandler MessageHandlerServerRX{ {&request_},{&request},dttRxTransmitter,FUNCTIONING_AS_RX};
-
+    
     // TX
     InputTranslationTable ittTxTransmitter;
     ittTxTransmitter.add(0, {"Msg_Tx", "Msg_Rx"});
@@ -65,13 +65,14 @@ int main(){
     IPTunnelServer_Client.setRemoteMachineIpAddress("127.0.0.1");
     IPTunnelServer_Client.setRemoteMachinePort(54001);
     IPTunnelServer_Client.setVerboseMode(false);
-
     
 
-
-    ReceiveETSI004 receiveRequest_Rx{{&request, &key}, {&response}};
+    ReceiveETSI004 receiveRequest_Rx{{&request, &key}, {&response, }};
     receiveRequest_Rx.setID("Rx");
     receiveRequest_Rx.setVerboseMode(true);
+
+    
+    
 
     
 
@@ -89,10 +90,10 @@ int main(){
     System System_
             {
                 {
-                &keyLoader,
                 &MessageHandlerServerRX,
                 &MessageHandlerServerTX,
                 &receiveRequest_Rx,
+                &keyLoader,
                 &IPTunnelServer_Client,
                 &IPTunnelServer_Server,
                 }
@@ -121,6 +122,9 @@ int main(){
 
     System_.run();
     System_.terminate();
+
+    
+    
 
     return 0;
 }

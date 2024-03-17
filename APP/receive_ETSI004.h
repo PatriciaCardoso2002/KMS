@@ -23,6 +23,8 @@ public:
 
 private:
 
+CircularBuffer<t_message> messagesToSend{ 5000 };
+
 t_string ID;
 
 t_integer ready;

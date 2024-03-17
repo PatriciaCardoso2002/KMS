@@ -32,8 +32,13 @@ int main(){
     HandlerMessage request_{"Client_request_.sgn",10,hType,sWriteMode};
     Message response{"Client_response.sgn",10,hType,sWriteMode};
     HandlerMessage response_{"Client_response_.sgn",10,hType,sWriteMode};
+    Binary key{"Client_key.sgn",1024,hType,sWriteMode};
     
-    // LoadRequest LoadRequest_Tx{ {},{&request} };
+    SaveAscii save{{&key},{}};
+    save.setAsciiFolderName("saved_keys");
+    save.setAsciiFileName("saved_keys");
+    save.setAsciiFileNameTailNumber("0");
+    save.setAsciiFileNameTailNumberModulos(0);
 
     // RX
     DestinationTranslationTable dttRxTransmitter;
@@ -69,9 +74,10 @@ int main(){
     IPTunnelClient_Server.setLocalMachinePort(54001);
     IPTunnelClient_Server.setVerboseMode(true);
 
-    ReceiveETSI004 receiveRequest_Tx{{&response}, {&request}};
+    ReceiveETSI004 receiveRequest_Tx{{&response}, {&request, &key}};
     receiveRequest_Tx.setID("Tx");
     receiveRequest_Tx.setVerboseMode(true);
+    
 
 
     
@@ -79,7 +85,7 @@ int main(){
     System System_
             {
                 {
-                //&LoadRequest_Tx,
+                &save,
                 &MessageHandlerClientRX,
                 &MessageHandlerClientTX,
                 &receiveRequest_Tx,
