@@ -32,7 +32,7 @@ int main(){
     HandlerMessage request_{"Client_request_.sgn",10,hType,sWriteMode};
     Message response{"Client_response.sgn",10,hType,sWriteMode};
     HandlerMessage response_{"Client_response_.sgn",10,hType,sWriteMode};
-    Binary key{"Client_key.sgn",1024,hType,sWriteMode};
+    Binary key{"Client_key.sgn",512,hType,sWriteMode};
     
     SaveAscii save{{&key},{}};
     save.setAsciiFolderName("saved_keys");

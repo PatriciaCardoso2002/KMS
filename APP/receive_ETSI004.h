@@ -1,6 +1,8 @@
 # define PROGRAM_RECEIVE_ETSI004_H_
 
 #include "netxpto_20200819.h"
+#include "json.hpp"
+
 
 class ReceiveETSI004 : public Block {
 
@@ -26,7 +28,6 @@ private:
 CircularBuffer<t_message> messagesToSend{ 5000 };
 
 t_string ID;
-
 t_integer ready;
 t_integer i;
 

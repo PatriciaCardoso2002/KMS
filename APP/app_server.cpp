@@ -33,7 +33,7 @@ int main(){
     HandlerMessage request_{"Server_request_.sgn",10,hType,sWriteMode};
     Message response{"Server_response.sgn",10,hType,sWriteMode};
     HandlerMessage response_{"Server_response_.sgn",10,hType,sWriteMode};
-    Binary key{"Server_key.sgn",1024,hType,sWriteMode};
+    Binary key{"Server_key.sgn",512,hType,sWriteMode};
 
     LoadAscii keyLoader({},{&key});
     keyLoader.setAsciiFileName("raw_keys/rx_raw");
