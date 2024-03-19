@@ -31,6 +31,7 @@ namespace etsi_qkd_004 {
 
     struct QoS {
         unsigned int key_chunk_size;
+        unsigned int key_nr;
         unsigned int max_bps;
         unsigned int min_bps;
         unsigned int jitter;

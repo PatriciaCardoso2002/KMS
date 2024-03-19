@@ -11,6 +11,7 @@
                                     {"destination", destination},
                                     {"qos", {
                                                     {"key_chunk_size", qos.key_chunk_size},
+                                                    {"key_nr", qos.key_nr},
                                                     {"max_bps", qos.max_bps},
                                                     {"min_bps", qos.min_bps},
                                                     {"jitter", qos.jitter},
@@ -39,6 +40,7 @@
                             {"key_stream_id", key_stream_id},
                             {"qos", {
                                                     {"key_chunk_size", qos.key_chunk_size},
+                                                    {"key_nr", qos.key_nr},
                                                     {"max_bps", qos.max_bps},
                                                     {"min_bps", qos.min_bps},
                                                     {"jitter", qos.jitter},

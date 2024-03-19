@@ -32,7 +32,7 @@ int main(){
     HandlerMessage request_{"Client_request_.sgn",10,hType,sWriteMode};
     Message response{"Client_response.sgn",10,hType,sWriteMode};
     HandlerMessage response_{"Client_response_.sgn",10,hType,sWriteMode};
-    Binary key{"Client_key.sgn",512,hType,sWriteMode};
+    Binary key{"Client_key.sgn",1024,hType,sWriteMode};
     
     SaveAscii save{{&key},{}};
     save.setAsciiFolderName("saved_keys");
@@ -50,18 +50,6 @@ int main(){
     ittTxTransmitter.add(0, {"Msg_Rx", "Msg_Tx"});
     MessageHandler MessageHandlerClientTX{ {&request},{&request_},FUNCTIONING_AS_TX,ittTxTransmitter};
     
-   
-
-    // std::cout << "Empty? " << request_.getBufferEmpty() << std::endl;
-
-    // if (!request_.getBufferEmpty()){
-    //     t_handler_message* msg = request_.bufferGet();
-    //     t_string data = msg->getMessageData();
-    //     std::cout << "Request:" << data << std::endl;
-    // }
-
-    
-
     IPTunnel IPTunnelClient_Client{{&request_},{}};
     IPTunnelClient_Client.setLocalMachineIpAddress("127.0.0.1");
     IPTunnelClient_Client.setRemoteMachineIpAddress("127.0.0.1");
@@ -75,12 +63,11 @@ int main(){
     IPTunnelClient_Server.setVerboseMode(true);
 
     ReceiveETSI004 receiveRequest_Tx{{&response}, {&request, &key}};
+    receiveRequest_Tx.setSource("KMS");
+    receiveRequest_Tx.setDestination("App_Server");
+    receiveRequest_Tx.setQoS(128,60,3,1,0,0,0,0,"metadata");
     receiveRequest_Tx.setID("Tx");
     receiveRequest_Tx.setVerboseMode(true);
-    
-
-
-    
 
     System System_
             {
@@ -115,7 +102,6 @@ int main(){
     // BlockGetFunction<std::_Mem_fn<int (IPTunnel::*)() const>, IPTunnel, int> Remote_Machine_Port_{ &IPTunnel_Client_Client, std::mem_fn(&IPTunnel::getRemoteMachinePort) };
     // Console_.addGetFunction("Remote Machine Receiving Port", &Remote_Machine_Port_, value_type::t_int);
 
-    std::cout << "ANTES DE TERMINAR" << std::endl;
     System_.run();
     
     System_.terminate();
