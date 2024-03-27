@@ -1,13 +1,12 @@
-#include "receive_ETSI004.h"
+#include "ETSI004_block.h"
 #include "etsi_qkd_004.h"
 #include "load_ascii_20200819.h"
 
-void ReceiveETSI004::initialize(void){
-    
-    
+void ETSI004Block::initialize(void){
+      
 }
 
-bool ReceiveETSI004::runBlock(void){
+bool ETSI004Block::runBlock(void){
 
     bool alive = true;
 
@@ -31,7 +30,7 @@ bool ReceiveETSI004::runBlock(void){
     }
 
     if(getVerboseMode()){
-        std::cout << "ready: " << ready << std::endl;
+        std::cout << "Messages Arrived: " << ready << std::endl;
     }
     
     for(auto k=0; k < ready; ++k){
@@ -53,9 +52,9 @@ bool ReceiveETSI004::runBlock(void){
             // for(const auto& msg : storedMessages){
             //     std::cout << "MSG: " << i << " - " << msg << std::endl;
             //     i++;
-            // }
-            
+            // } 
         }
+        
         if (msgCommand == "OPEN_CONNECT_RESPONSE"){
             if(getVerboseMode()){
                 std::cout << "RECEIVED OPEN_CONNECT_RESPONSE" << std::endl;
@@ -75,38 +74,30 @@ bool ReceiveETSI004::runBlock(void){
                 std::cout << "RECEIVED GET_KEY_RESPONSE" << std::endl;
             }
 
-
-
             t_string keyBuffer = msgData["key_buffer"].dump();
             unsigned int get_key_index = msgData["index"].get<unsigned int>();
-            t_integer space = outputSignals[1]->space();
+            //t_integer space = outputSignals[1]->space();
+
+            // Assuming keyBuffer is already filled
+            for (int i = 0; i < keyBuffer.length(); i++) {
+                if (keyBuffer[i] == '0') {
+                    outputSignals[1]->bufferPut((t_binary)0);
+                    //space--;
+                }
+                if (keyBuffer[i] == '1') {
+                    outputSignals[1]->bufferPut((t_binary)1);
+                    //space--;
+                } 
+            }
 
             if( get_key_index == qos.key_nr-1){
                 t_message msgSend;
                 t_string msgDataSend = etsi_qkd_004::close(key_stream_id).dump();
                 msgSend.setMessageData(msgDataSend);
                 outputSignals[0]->bufferPut(msgSend);
-                alive = false;
-                //setTerminated(true);
-                
-                return alive;
-            } else {
-                // Assuming keyBuffer is already filled
-                for (int i = 0; i < keyBuffer.length(); i++) {
-                    if (keyBuffer[i] == '0') {
-                        outputSignals[1]->bufferPut(t_binary(0));
-                        space--;
-                    }
-                    if (keyBuffer[i] == '1') {
-                        outputSignals[1]->bufferPut(t_binary(1));
-                        space--;
-                    } 
-                }
-
-                alive = true;
-
+                setTerminated(true);
             }
-
+            alive = true;
         }
         
     }
@@ -191,10 +182,7 @@ bool ReceiveETSI004::runBlock(void){
         t_string msgDataSend = etsi_qkd_004::handle_close(status).dump();
         msgSend.setMessageData(msgDataSend);
         outputSignals[0]->bufferPut(msgSend);
-
-        alive = false;
         setTerminated(true);
-        return alive;
     }
 
     if (ID == "Rx" && messagesToSend.ready() && !inputSignals[0]->ready()){

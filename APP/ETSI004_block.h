@@ -1,15 +1,15 @@
-# define PROGRAM_RECEIVE_ETSI004_H_
+# define PROGRAM_ETSI004_BLOCK_H_
 
 #include "netxpto_20200819.h"
 #include "etsi_qkd_004.h"
 #include "json.hpp"
 
 
-class ReceiveETSI004 : public Block {
+class ETSI004Block : public Block {
 
 public:
 
-    ReceiveETSI004(std::initializer_list<Signal *> InputSig, std::initializer_list<Signal *> OutputSig) :Block(InputSig, OutputSig) {};
+    ETSI004Block(std::initializer_list<Signal *> InputSig, std::initializer_list<Signal *> OutputSig) :Block(InputSig, OutputSig) {};
 
     void initialize(void);
     bool runBlock(void);
