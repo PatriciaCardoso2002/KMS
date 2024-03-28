@@ -14,8 +14,14 @@ public:
     void initialize(void);
     bool runBlock(void);
 
+    static const unsigned int PUSH = 0;
+    static const unsigned int PULL = 1;
+
     void setID(t_string Id){ID = Id;};
     t_string getID(){return ID;};
+
+    void setMode(unsigned int Mode){mode = Mode;};
+    unsigned int getMode(){return mode;};
 
     void setQoS(unsigned int key_chunk_size, unsigned int key_nr, unsigned int max_bps, unsigned int min_bps, unsigned int jitter, unsigned int priority, unsigned int timeout, unsigned int ttl, std::string metadata_mimetype){
         this->qos.key_chunk_size = key_chunk_size;
@@ -28,7 +34,6 @@ public:
         this->qos.ttl = ttl;
         this->qos.metadata_mimetype = metadata_mimetype;
     }
-    
     etsi_qkd_004::QoS getQoS() const{
         return qos;
     }
@@ -36,7 +41,6 @@ public:
     void setKeyStreamId(const etsi_qkd_004::UUID& key_stream_id){
         this->key_stream_id = key_stream_id;
     }
-
     etsi_qkd_004::UUID getKeyStreamId() const{
         return key_stream_id;
     }
@@ -46,17 +50,15 @@ public:
         this->metadata_client.size = size;
         this->metadata_client.buffer = buffer;
     }
+    etsi_qkd_004::Metadata getMetadataClient() const{
+        return metadata_client;
+    }
 
     void setMetadataServer(const etsi_qkd_004::Metadata& metadata, unsigned int size, std::string buffer){
         this->metadata_server= metadata;
         this->metadata_server.size = size;
         this->metadata_server.buffer = buffer;
-    }
-
-    etsi_qkd_004::Metadata getMetadataClient() const{
-        return metadata_client;
-    }
-
+    }    
     etsi_qkd_004::Metadata getMetadataServer() const{
         return metadata_server;
     }
@@ -64,7 +66,6 @@ public:
     void setSource(etsi_qkd_004::URI source){
         this->source = source;
     }
-
     etsi_qkd_004::URI getSource(){
         return source;
     }
@@ -72,16 +73,15 @@ public:
     void setDestination(etsi_qkd_004::URI destination){
         this->destination = destination;
     }
-
     etsi_qkd_004::URI getDestination(){
         return destination;
     }
 
 private:
-
-std::vector<t_message> storedMessages = {};
+std::vector<t_message> receivedMessages = {};
 CircularBuffer<t_message> messagesToSend{ 5000 };
 
+unsigned int mode{0};
 t_string ID;
 t_integer ready;
 t_integer i;

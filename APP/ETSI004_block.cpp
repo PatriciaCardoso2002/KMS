@@ -15,6 +15,7 @@ bool ETSI004Block::runBlock(void){
     ready = inputSignals[0]->ready();
     json lastrcv_msgCommand;
     json lastrcv_msg;
+    json msgJson;
     json msgCommand;
     json msgData;
 
@@ -37,9 +38,9 @@ bool ETSI004Block::runBlock(void){
         t_message msgReceived;
         inputSignals[0]->bufferGet(&msgReceived);
         t_string msgString = msgReceived.getMessageData();
-        storedMessages.push_back(msgReceived);
+        receivedMessages.push_back(msgReceived);
 
-        json msgJson = json::parse(msgString);
+        msgJson = json::parse(msgString);
         msgCommand = msgJson["command"];
         msgData = msgJson["data"];
 
@@ -49,7 +50,7 @@ bool ETSI004Block::runBlock(void){
             // std::cout << "msgCommand:  " << msgCommand << std::endl;
             // std::cout << "msgData: " << msgData << std::endl;
             // i = 0;
-            // for(const auto& msg : storedMessages){
+            // for(const auto& msg : receivedMessages){
             //     std::cout << "MSG: " << i << " - " << msg << std::endl;
             //     i++;
             // } 
@@ -76,37 +77,77 @@ bool ETSI004Block::runBlock(void){
 
             t_string keyBuffer = msgData["key_buffer"].dump();
             unsigned int get_key_index = msgData["index"].get<unsigned int>();
-            //t_integer space = outputSignals[1]->space();
+            metadata_server.size = msgData["metadata"]["size"];
+            metadata_server.buffer = msgData["metadata"]["buffer"];
+
 
             // Assuming keyBuffer is already filled
             for (int i = 0; i < keyBuffer.length(); i++) {
                 if (keyBuffer[i] == '0') {
                     outputSignals[1]->bufferPut((t_binary)0);
-                    //space--;
                 }
                 if (keyBuffer[i] == '1') {
                     outputSignals[1]->bufferPut((t_binary)1);
-                    //space--;
                 } 
             }
+            // for (int i = 0; i < metadata_server.size; i++) {
+            //     outputSignals[1]->bufferPut(metadata_server.buffer[i]);
+            // }
 
-            if( get_key_index == qos.key_nr-1){
+            if (mode == PULL && get_keyID < qos.key_nr){
+                t_message msgSend;
+                t_string msgDataSend = etsi_qkd_004::get_key(key_stream_id,get_keyID++,metadata_client).dump();
+                msgSend.setMessageData(msgDataSend);
+                outputSignals[0]->bufferPut(msgSend);
+
+            } else if ( get_key_index == qos.key_nr-1){
                 t_message msgSend;
                 t_string msgDataSend = etsi_qkd_004::close(key_stream_id).dump();
                 msgSend.setMessageData(msgDataSend);
                 outputSignals[0]->bufferPut(msgSend);
-                setTerminated(true);
+                //setTerminated(true);
             }
             alive = true;
+        }
+
+        if (mode == PULL && msgCommand == "GET_KEY"){
+            if(getVerboseMode()){
+            std::cout << "RECEIVED GET_KEY" << std::endl;
+            }
+            etsi_qkd_004::KeyBuffer keyBuffer;
+
+            while(inputSignals[1]->ready()){
+                for(auto k = 0; k < getQoS().key_chunk_size ; k++){
+                    t_binary kval{0};
+                    inputSignals[1]->bufferGet(&kval);
+                    keyBuffer.push_back(kval);
+                }
+
+                if (getVerboseMode()){
+                    for (unsigned char c : keyBuffer) {
+                    std::cout << static_cast<int>(c);
+                    }
+                    std::cout << std::endl;
+                }
+
+                etsi_qkd_004::Status status = etsi_qkd_004::SUCCESSFUL;
+                t_string msgDataSend = etsi_qkd_004::handle_get_key(status,keyBuffer,get_keyResID++,metadata_server).dump();
+                keyBuffer.clear();
+
+                t_message msgSend;
+                msgSend.setMessageData(msgDataSend);
+                outputSignals[0]->bufferPut(msgSend);
+
+                alive = true;
+                return alive;
+            }
         }
         
     }
 
-    if (!storedMessages.empty()){
-        lastrcv_msg = json::parse(storedMessages.back().getMessageData());
+    if (!receivedMessages.empty()){
+        lastrcv_msg = json::parse(receivedMessages.back().getMessageData());
         lastrcv_msgCommand = lastrcv_msg["command"];
-        // std::cout << lastrcv_msg << std::endl;
-        // std::cout << lastrcv_msgCommand << std::endl;
     }
     
     if (msgCommand == "OPEN_CONNECT"){
@@ -134,48 +175,6 @@ bool ETSI004Block::runBlock(void){
         
         alive = true;
 
-    } else if (msgCommand == "GET_KEY" || lastrcv_msgCommand == "GET_KEY"){
-        // código para gerar resposta ao get_key
-        if(getVerboseMode()){
-            std::cout << "RECEIVED GET_KEY" << std::endl;
-        }
-        
-        etsi_qkd_004::KeyBuffer keyBuffer;
-
-        while(inputSignals[1]->ready() && messagesToSend.space() && get_keyResID < getQoS().key_nr){
-
-            auto process = inputSignals[1]->ready();
-
-            for(auto k = 0; k < getQoS().key_chunk_size ; k++){
-                t_binary kval{0};
-                inputSignals[1]->bufferGet(&kval);
-                keyBuffer.push_back(kval);
-            }
-
-            if (getVerboseMode()){
-                for (unsigned char c : keyBuffer) {
-                std::cout << static_cast<int>(c);
-                }
-                std::cout << std::endl;
-            }
-            
-
-            etsi_qkd_004::Status status = etsi_qkd_004::SUCCESSFUL;
-            t_string msgDataSend = etsi_qkd_004::handle_get_key(status,keyBuffer,get_keyResID++,metadata_server).dump();
-            keyBuffer.clear();
-
-            t_message msgSend;
-            msgSend.setMessageData(msgDataSend);
-
-            if(messagesToSend.space()){
-                messagesToSend.bufferPut(msgSend);
-            } else if (getVerboseMode()){
-                std::cout << "NO SPACE IN INTERNAL BUFFER" << std::endl;
-            }
-        }
-
-        alive = true;
-
     } else if (msgCommand == "CLOSE"){
         etsi_qkd_004::Status status = etsi_qkd_004::SUCCESSFUL;
         t_message msgSend;
@@ -185,21 +184,65 @@ bool ETSI004Block::runBlock(void){
         setTerminated(true);
     }
 
-    if (ID == "Rx" && messagesToSend.ready() && !inputSignals[0]->ready()){
-        if(outputSignals[0]->space()){
-            t_message msg = messagesToSend.bufferGet();
-            std::cout << "MESSAGE TO OUTPUT: " << msg << std::endl;
-            outputSignals[0]->bufferPut(msg);
-            std::cout << "MESSAGE OUTPUTTED" << std::endl;
+    if (mode == PUSH){
 
-        } else {
+        if (msgCommand == "GET_KEY" || lastrcv_msgCommand == "GET_KEY"){
+            // código para gerar resposta ao get_key
             if(getVerboseMode()){
-                std::cout << "OUTPUT BUFFER IS FULL" << std::endl;
+                std::cout << "RECEIVED GET_KEY" << std::endl;
+            }
+            
+            etsi_qkd_004::KeyBuffer keyBuffer;
+
+            while(inputSignals[1]->ready() && messagesToSend.space() && get_keyResID < getQoS().key_nr){
+
+                for(auto k = 0; k < getQoS().key_chunk_size ; k++){
+                    t_binary kval{0};
+                    inputSignals[1]->bufferGet(&kval);
+                    keyBuffer.push_back(kval);
+                }
+
+                if (getVerboseMode()){
+                    for (unsigned char c : keyBuffer) {
+                    std::cout << static_cast<int>(c);
+                    }
+                    std::cout << std::endl;
+                }
+                
+                etsi_qkd_004::Status status = etsi_qkd_004::SUCCESSFUL;
+                t_string msgDataSend = etsi_qkd_004::handle_get_key(status,keyBuffer,get_keyResID++,metadata_server).dump();
+                keyBuffer.clear();
+
+                t_message msgSend;
+                msgSend.setMessageData(msgDataSend);
+
+                if(messagesToSend.space()){
+                    messagesToSend.bufferPut(msgSend);
+                } else if (getVerboseMode()){
+                    std::cout << "NO SPACE IN INTERNAL BUFFER" << std::endl;
+                }
+            }
+
+            alive = true;
+
+        } 
+
+        if (ID == "Rx" && messagesToSend.ready() && !inputSignals[0]->ready()){
+            if(outputSignals[0]->space()){
+                t_message msgSend = messagesToSend.bufferGet();
+                outputSignals[0]->bufferPut(msgSend);
+                if(getVerboseMode()){
+                    std::cout << "MESSAGE OUTPUTTED" << std::endl;
+                }
+            } else {
+                if(getVerboseMode()){
+                    std::cout << "OUTPUT BUFFER IS FULL" << std::endl;
+                }
             }
         }
+
     } else {
         if(getVerboseMode()){
-            std::cout << getQoS().key_nr << std::endl;
             std::cout << "DID NOTHING" << std::endl;
         }
     }

@@ -61,8 +61,9 @@ int main(){
 
     ETSI004Block ETSI004_KMS{{&response}, {&request, &key}};
     ETSI004_KMS.setSource("KMS");
-    ETSI004_KMS.setDestination("App_Server");
-    ETSI004_KMS.setQoS(128,60,3,1,0,0,0,0,"metadata");
+    ETSI004_KMS.setDestination("Reconciliation");
+    ETSI004_KMS.setQoS(256,200,3,1,0,0,0,0,"metadata");
+    ETSI004_KMS.setMode(ETSI004Block::PULL);
     ETSI004_KMS.setID("Tx");
     ETSI004_KMS.setVerboseMode(true);
 

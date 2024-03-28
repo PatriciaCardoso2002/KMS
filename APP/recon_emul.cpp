@@ -62,6 +62,7 @@ int main(){
 
     ETSI004Block ETSI004_RECON{{&request, &key}, {&response, }};
     ETSI004_RECON.setID("Rx");
+    ETSI004_RECON.setMode(ETSI004Block::PULL);
     ETSI004_RECON.setVerboseMode(true);
 
     System System_
