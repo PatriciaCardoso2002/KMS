@@ -12,15 +12,6 @@
 
 int main(){
     
-    // sinal do tipo HandlerMessage entra no Message Handler TX da app_client como input signal,
-    // este sinal é uma conversão do json relativo a cada request ETSI 004
-    // o output signal do message handler será o mesmo (?)
-    // O sinal é enviado pelo IP Tunnel até ao Message Handler RX da app_server (input signal)
-    // que o coloca como output signal para a app processar a mensagem (converte para json e dá handle ao pedido)
-    // a resposta a este pedido é gerada, convertida para sinal do tipo HandlerMessage e colocado como input Signal
-    // do MessageHandler TX da app_server. Será o mesmo output sinal e daí é enviado pelo IP Tunnel para o Message Handler RX da app_client
-    // passa para output sinal e esse output sinal será processado como anteriormente.
-    
     Signal::t_write_mode sWriteMode{ Signal::t_write_mode::Ascii};
     Signal::t_header_type hType{ Signal::t_header_type::fullHeader };
     Message request{"Client_request.sgn",10,hType,sWriteMode};
@@ -60,11 +51,11 @@ int main(){
     IPTunnelClient_Server.setTimeIntervalSeconds(10);
 
     ETSI004Block ETSI004_KMS{{&response}, {&request, &key}};
+    ETSI004_KMS.setID("Tx");
     ETSI004_KMS.setSource("KMS");
     ETSI004_KMS.setDestination("Reconciliation");
-    ETSI004_KMS.setQoS(256,200,3,1,0,0,0,0,"metadata");
-    ETSI004_KMS.setMode(ETSI004Block::PULL);
-    ETSI004_KMS.setID("Tx");
+    ETSI004_KMS.setQoS(0,50);
+    ETSI004_KMS.setMode(ETSI004Block::PUSH);
     ETSI004_KMS.setVerboseMode(true);
 
     System System_

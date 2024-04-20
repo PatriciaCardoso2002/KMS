@@ -33,7 +33,8 @@ int main(){
     LoadAscii readKeys({},{&key});
     readKeys.setAsciiFileName("recon_keys/rx_raw");
     readKeys.setAsciiFileNameTailNumber("0");
-    readKeys.setAsciiFileNameTailNumberModulos(1);
+    //readKeys.setAsciiFileNameTailNumberModulos(5);
+
 
     IPTunnel IPTunnelServer_Server{{},{&request_}};
     IPTunnelServer_Server.setLocalMachineIpAddress("127.0.0.1");
@@ -60,9 +61,9 @@ int main(){
     IPTunnelServer_Client.setTimeIntervalSeconds(10);
     
 
-    ETSI004Block ETSI004_RECON{{&request, &key}, {&response, }};
+    ETSI004Block ETSI004_RECON{{&request, &key}, {&response}};
     ETSI004_RECON.setID("Rx");
-    ETSI004_RECON.setMode(ETSI004Block::PULL);
+    ETSI004_RECON.setMode(ETSI004Block::PUSH);
     ETSI004_RECON.setVerboseMode(true);
 
     System System_

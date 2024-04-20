@@ -23,9 +23,12 @@ public:
     void setMode(unsigned int Mode){mode = Mode;};
     unsigned int getMode(){return mode;};
 
-    void setQoS(unsigned int key_chunk_size, unsigned int key_nr, unsigned int max_bps, unsigned int min_bps, unsigned int jitter, unsigned int priority, unsigned int timeout, unsigned int ttl, std::string metadata_mimetype){
+    void setNumKeys(unsigned int NumKeys){num_keys = NumKeys;}
+    unsigned int getNumKeys(){return num_keys;}
+
+    void setQoS(unsigned int key_type = 0, unsigned int key_chunk_size = 0, unsigned int max_bps = 0, unsigned int min_bps = 0, unsigned int jitter = 0, unsigned int priority = 0, unsigned int timeout = 0, unsigned int ttl = 0, std::string metadata_mimetype = "JSON"){        
+        this->qos.key_type = key_type;
         this->qos.key_chunk_size = key_chunk_size;
-        this->qos.key_nr = key_nr;
         this->qos.max_bps = max_bps;
         this->qos.min_bps = min_bps;
         this->qos.jitter = jitter;
@@ -84,13 +87,19 @@ CircularBuffer<t_message> messagesToSend{ 5000 };
 unsigned int mode{0};
 t_string ID;
 t_integer ready;
-t_integer i;
+t_integer i = 0;
+
+json msgJson;
+json msgCommand;
+json msgData;
+
+unsigned int num_keys = 50;
 unsigned int get_keyResID = 0;
 unsigned int get_keyID = 0;
 
 etsi_qkd_004::URI source = "source";
 etsi_qkd_004::URI destination = "destination";
-etsi_qkd_004::QoS qos = {0,0,0,0,0,0,0,0,"metadata"};
+etsi_qkd_004::QoS qos;
 etsi_qkd_004::UUID key_stream_id = "1";
 etsi_qkd_004::Metadata metadata_client = {32,"metadata about the key requested"};
 etsi_qkd_004::Metadata metadata_server = {32,"metadata about the key sent"};

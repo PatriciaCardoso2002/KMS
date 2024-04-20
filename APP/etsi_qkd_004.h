@@ -23,6 +23,8 @@ namespace etsi_qkd_004 {
     using UUID = std::string;
     using KeyBuffer = typename std::vector<unsigned char>;
 
+    const unsigned int SYMMETRIC = 0;
+    const unsigned int OBLIVIOUS = 1;
 
     struct Metadata {
         unsigned int size;
@@ -30,8 +32,8 @@ namespace etsi_qkd_004 {
     };
 
     struct QoS {
+        unsigned int key_type;
         unsigned int key_chunk_size;
-        unsigned int key_nr;
         unsigned int max_bps;
         unsigned int min_bps;
         unsigned int jitter;
@@ -46,7 +48,6 @@ namespace etsi_qkd_004 {
         NO_QKD_CONNECTION_AVAILABLE = 4, OC_KSID_ALREADY_IN_USE = 5, TIMEOUT_ERROR = 6, OC_QOS_NOT_SATISFIABLE = 7,
         GK_METADATA_INSUFFICIENT_SIZE = 8
     };
-
 
 //função que deverá ser usada pelo client para fazer um open_connect 
 //devolve um json para que este seja posteriormente convertido num sinal
