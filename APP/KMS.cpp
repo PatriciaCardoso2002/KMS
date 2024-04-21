@@ -9,8 +9,13 @@
 #include "ip_tunnel_ms_windows_20200819.h"
 #include "ETSI004_block.h"
 #include "etsi_qkd_004.h"
+#include "cv_qokd_ldpc_multi_machine_sdf.h"
 
 int main(){
+
+    DvQkdLdpcInputParameters param = DvQkdLdpcInputParameters();
+    param.setInputParametersFileName("input_parameters_KMS.txt");
+    param.readSystemInputParameters();
     
     Signal::t_write_mode sWriteMode{ Signal::t_write_mode::Ascii};
     Signal::t_header_type hType{ Signal::t_header_type::fullHeader };
@@ -19,6 +24,8 @@ int main(){
     Message response{"Client_response.sgn",10,hType,sWriteMode};
     HandlerMessage response_{"Client_response_.sgn",10,hType,sWriteMode};
     Binary key{"Client_key.sgn",1024,hType,sWriteMode};
+
+
     
     SaveAscii saveKeys{{&key},{}};
     saveKeys.setAsciiFolderName("KMS_saved_keys");
@@ -37,26 +44,26 @@ int main(){
     MessageHandler MessageHandlerClientTX{ {&request},{&request_},FUNCTIONING_AS_TX,ittTxTransmitter};
     
     IPTunnel IPTunnelClient_Client{{&request_},{}};
-    IPTunnelClient_Client.setLocalMachineIpAddress("127.0.0.1");
-    IPTunnelClient_Client.setRemoteMachineIpAddress("127.0.0.1");
-    IPTunnelClient_Client.setRemoteMachinePort(54000);
-    IPTunnelClient_Client.setVerboseMode(true);
+    IPTunnelClient_Client.setLocalMachineIpAddress(param.txIpAddress);
+    IPTunnelClient_Client.setRemoteMachineIpAddress(param.rxIpAddress);
+    IPTunnelClient_Client.setRemoteMachinePort(param.rxReceivingPort);
+    IPTunnelClient_Client.setVerboseMode(param.verboseMode);
     IPTunnelClient_Client.setTimeIntervalSeconds(10);
 
     IPTunnel IPTunnelClient_Server{{},{&response_}};
-    IPTunnelClient_Server.setLocalMachineIpAddress("127.0.0.1");
-    IPTunnelClient_Server.setRemoteMachineIpAddress("127.0.0.1");
-    IPTunnelClient_Server.setLocalMachinePort(54001);
-    IPTunnelClient_Server.setVerboseMode(true);
+    IPTunnelClient_Server.setLocalMachineIpAddress(param.txIpAddress);
+    IPTunnelClient_Server.setRemoteMachineIpAddress(param.rxIpAddress);
+    IPTunnelClient_Server.setLocalMachinePort(param.txReceivingPort);
+    IPTunnelClient_Server.setVerboseMode(param.verboseMode);
     IPTunnelClient_Server.setTimeIntervalSeconds(10);
 
     ETSI004Block ETSI004_KMS{{&response}, {&request, &key}};
     ETSI004_KMS.setID("Tx");
-    ETSI004_KMS.setSource("KMS");
-    ETSI004_KMS.setDestination("Reconciliation");
-    ETSI004_KMS.setQoS(0,50);
-    ETSI004_KMS.setMode(ETSI004Block::PUSH);
-    ETSI004_KMS.setVerboseMode(true);
+    ETSI004_KMS.setSource(param.etsiSource);
+    ETSI004_KMS.setDestination(param.etsiDest);
+    ETSI004_KMS.setQoS((unsigned int) param.keyType, (unsigned int) param.keyChunkSize, (unsigned int) param.maxBps, (unsigned int) param.minBps, (unsigned int) param.jitter, (unsigned int) param.priority, (unsigned int) param.timeout, (unsigned int) param.ttl, param.metaMimetype );
+    ETSI004_KMS.setMode((unsigned int) param.etsiMode);
+    ETSI004_KMS.setVerboseMode(param.verboseMode);
 
     System System_
             {

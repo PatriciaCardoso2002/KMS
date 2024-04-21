@@ -9,17 +9,13 @@
 #include "ip_tunnel_ms_windows_20200819.h"
 #include "ETSI004_block.h"
 #include "etsi_qkd_004.h"
+#include "cv_qokd_ldpc_multi_machine_sdf.h"
 
 int main(){
     
-    // sinal do tipo HandlerMessage entra no Message Handler TX da app_client como input signal,
-    // este sinal é uma conversão do json relativo a cada request ETSI 004
-    // o output signal do message handler será o mesmo (?)
-    // O sinal é enviado pelo IP Tunnel até ao Message Handler RX da app_server (input signal)
-    // que o coloca como output signal para a app processar a mensagem (converte para json e dá handle ao pedido)
-    // a resposta a este pedido é gerada, convertida para sinal do tipo HandlerMessage e colocado como input Signal
-    // do MessageHandler TX da app_server. Será o mesmo output sinal e daí é enviado pelo IP Tunnel para o Message Handler RX da app_client
-    // passa para output sinal e esse output sinal será processado como anteriormente.
+    DvQkdLdpcInputParameters param = DvQkdLdpcInputParameters();
+    param.setInputParametersFileName("input_parameters_KeyProvider.txt");
+    param.readSystemInputParameters();
 
     Signal::t_write_mode sWriteMode{ Signal::t_write_mode::Ascii};
     Signal::t_header_type hType{ Signal::t_header_type::fullHeader };
@@ -37,10 +33,10 @@ int main(){
 
 
     IPTunnel IPTunnelServer_Server{{},{&request_}};
-    IPTunnelServer_Server.setLocalMachineIpAddress("127.0.0.1");
-    IPTunnelServer_Server.setRemoteMachineIpAddress("127.0.0.1");
-    IPTunnelServer_Server.setLocalMachinePort(54000);
-    IPTunnelServer_Server.setVerboseMode(false);
+    IPTunnelServer_Server.setLocalMachineIpAddress(param.rxIpAddress);
+    IPTunnelServer_Server.setRemoteMachineIpAddress(param.txIpAddress);
+    IPTunnelServer_Server.setLocalMachinePort(param.rxReceivingPort);
+    IPTunnelServer_Server.setVerboseMode(param.verboseMode);
     IPTunnelServer_Server.setTimeIntervalSeconds(10);
 
     // RX
@@ -54,17 +50,17 @@ int main(){
     MessageHandler MessageHandlerServerTX{ {&response},{&response_},FUNCTIONING_AS_TX,ittTxTransmitter};
 
     IPTunnel IPTunnelServer_Client{{&response_},{}};
-    IPTunnelServer_Client.setLocalMachineIpAddress("127.0.0.1");
-    IPTunnelServer_Client.setRemoteMachineIpAddress("127.0.0.1");
-    IPTunnelServer_Client.setRemoteMachinePort(54001);
-    IPTunnelServer_Client.setVerboseMode(false);
+    IPTunnelServer_Client.setLocalMachineIpAddress(param.rxIpAddress);
+    IPTunnelServer_Client.setRemoteMachineIpAddress(param.txIpAddress);
+    IPTunnelServer_Client.setRemoteMachinePort(param.txReceivingPort);
+    IPTunnelServer_Client.setVerboseMode(param.verboseMode);
     IPTunnelServer_Client.setTimeIntervalSeconds(10);
     
 
     ETSI004Block ETSI004_RECON{{&request, &key}, {&response}};
     ETSI004_RECON.setID("Rx");
-    ETSI004_RECON.setMode(ETSI004Block::PUSH);
-    ETSI004_RECON.setVerboseMode(true);
+    ETSI004_RECON.setMode(param.etsiMode);
+    ETSI004_RECON.setVerboseMode(param.verboseMode);
 
     System System_
             {
