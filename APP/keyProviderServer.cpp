@@ -4,7 +4,7 @@
 #include <iostream>
 #include <memory>
 #include "message_handler.h"
-#include "save_ascii_20200819.h"
+#include "save_ascii_2024.h"
 #include "ms_windows_console_output_common_20200819.h"
 #include "ip_tunnel_ms_windows_20200819.h"
 #include "ETSI004_block.h"
@@ -60,6 +60,7 @@ int main(){
     ETSI004Block ETSI004_RECON{{&request, &key}, {&response}};
     ETSI004_RECON.setID("Rx");
     ETSI004_RECON.setMode(param.etsiMode);
+    ETSI004_RECON.setNumKeys((unsigned int) param.numKeys);
     ETSI004_RECON.setVerboseMode(param.verboseMode);
 
     System System_

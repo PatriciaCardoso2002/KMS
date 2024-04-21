@@ -71,6 +71,7 @@ public:
 	t_integer numberOfDummyBitsPerBitFillingPeriod{ 0 };
 
 	// 04-2024
+	t_integer numKeys{ 50 };
 	std::string etsiSource{ "KMS" };
 	std::string etsiDest{ "KeyProvider" };
 	t_integer keyType{ 0 };
@@ -84,12 +85,13 @@ public:
 	t_integer ttl{ 0 };
 	std::string metaMimetype{ "JSON" };
 
-	std::string fileType{ "ASCII" };
+	t_integer fileType{ 0 };
 	t_integer cntFirstVal{ 0 };
 	t_integer cntLastVal{ INT_MAX };
 	std::string txFileName{ "sym_tx" };
 	std::string rxFileName{ "sym_rx" };
 	t_integer seed{ 0 };
+	//
 
 
 	t_integer parameterEstimationNBits{ 100 };
@@ -183,6 +185,7 @@ public:
 		addInputParameter("txFileName", &txFileName);
 		addInputParameter("rxFileName", &rxFileName);
 		addInputParameter("seed", &seed);
+		addInputParameter("numKeys", &numKeys);
 	}
 };
 

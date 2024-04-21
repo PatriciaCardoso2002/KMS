@@ -4,7 +4,7 @@
 #include <iostream>
 #include <memory>
 #include "message_handler.h"
-#include "save_ascii_20200819.h"
+#include "save_ascii_2024.h"
 #include "ms_windows_console_output_common_20200819.h"
 #include "ip_tunnel_ms_windows_20200819.h"
 #include "ETSI004_block.h"
@@ -25,9 +25,8 @@ int main(){
     HandlerMessage response_{"Client_response_.sgn",10,hType,sWriteMode};
     Binary key{"Client_key.sgn",1024,hType,sWriteMode};
 
-
-    
     SaveAscii saveKeys{{&key},{}};
+    saveKeys.setFile_type(param.fileType);
     saveKeys.setAsciiFolderName("KMS_saved_keys");
     saveKeys.setAsciiFileName("saved_keys");
     saveKeys.setAsciiFileNameTailNumber("0");
@@ -63,6 +62,7 @@ int main(){
     ETSI004_KMS.setDestination(param.etsiDest);
     ETSI004_KMS.setQoS((unsigned int) param.keyType, (unsigned int) param.keyChunkSize, (unsigned int) param.maxBps, (unsigned int) param.minBps, (unsigned int) param.jitter, (unsigned int) param.priority, (unsigned int) param.timeout, (unsigned int) param.ttl, param.metaMimetype );
     ETSI004_KMS.setMode((unsigned int) param.etsiMode);
+    ETSI004_KMS.setNumKeys((unsigned int) param.numKeys);
     ETSI004_KMS.setVerboseMode(param.verboseMode);
 
     System System_
