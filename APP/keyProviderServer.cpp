@@ -26,18 +26,27 @@ int main(){
     HandlerMessage response_{"Server_response_.sgn",10,hType,sWriteMode};
     Binary key{"Server_key.sgn",1024,hType,sWriteMode};
 
-    LoadAscii readKeys({},{&key});
-    readKeys.setAsciiFileName("recon_keys/rx_raw");
-    readKeys.setAsciiFileNameTailNumber("0");
-    //readKeys.setAsciiFileNameTailNumberModulos(5);
 
+    LoadAscii readKeys({},{&key});
+    if (param.provider == "Tx"){
+        if (param.fileType == 0){
+            readKeys.setAsciiFileNameExtension(".dat");
+        } else if (param.fileType == 1){ readKeys.setAsciiFileNameExtension(".b64");}
+        readKeys.setAsciiFileName("../generated_keys_TX/sym_tx");
+    } else if (param.provider == "Rx"){
+        if (param.fileType == 0){
+            readKeys.setAsciiFileNameExtension(".dat");
+        } else if (param.fileType == 1){ readKeys.setAsciiFileNameExtension(".b64");}
+        readKeys.setAsciiFileName("../generated_keys_RX/sym_rx");
+    }
+    readKeys.setAsciiFileNameTailNumber(param.cntFirstVal);
 
     IPTunnel IPTunnelServer_Server{{},{&request_}};
     IPTunnelServer_Server.setLocalMachineIpAddress(param.rxIpAddress);
     IPTunnelServer_Server.setRemoteMachineIpAddress(param.txIpAddress);
     IPTunnelServer_Server.setLocalMachinePort(param.rxReceivingPort);
     IPTunnelServer_Server.setVerboseMode(param.verboseMode);
-    IPTunnelServer_Server.setTimeIntervalSeconds(10);
+    //IPTunnelServer_Server.setTimeIntervalSeconds(10);
 
     // RX
     DestinationTranslationTable dttRxTransmitter;
@@ -54,7 +63,7 @@ int main(){
     IPTunnelServer_Client.setRemoteMachineIpAddress(param.txIpAddress);
     IPTunnelServer_Client.setRemoteMachinePort(param.txReceivingPort);
     IPTunnelServer_Client.setVerboseMode(param.verboseMode);
-    IPTunnelServer_Client.setTimeIntervalSeconds(10);
+    //IPTunnelServer_Client.setTimeIntervalSeconds(10);
     
 
     ETSI004Block ETSI004_RECON{{&request, &key}, {&response}};

@@ -27,7 +27,7 @@ int main(){
 
     SaveAscii saveKeys{{&key},{}};
     saveKeys.setFile_type(param.fileType);
-    saveKeys.setAsciiFolderName("KMS_saved_keys");
+    saveKeys.setAsciiFolderName("../KMS_keys");
     saveKeys.setAsciiFileName("saved_keys");
     saveKeys.setAsciiFileNameTailNumber("0");
     saveKeys.setAsciiFileNameTailNumberModulos(0);
@@ -47,14 +47,14 @@ int main(){
     IPTunnelClient_Client.setRemoteMachineIpAddress(param.rxIpAddress);
     IPTunnelClient_Client.setRemoteMachinePort(param.rxReceivingPort);
     IPTunnelClient_Client.setVerboseMode(param.verboseMode);
-    IPTunnelClient_Client.setTimeIntervalSeconds(10);
+    //IPTunnelClient_Client.setTimeIntervalSeconds(10);
 
     IPTunnel IPTunnelClient_Server{{},{&response_}};
     IPTunnelClient_Server.setLocalMachineIpAddress(param.txIpAddress);
     IPTunnelClient_Server.setRemoteMachineIpAddress(param.rxIpAddress);
     IPTunnelClient_Server.setLocalMachinePort(param.txReceivingPort);
     IPTunnelClient_Server.setVerboseMode(param.verboseMode);
-    IPTunnelClient_Server.setTimeIntervalSeconds(10);
+    //IPTunnelClient_Server.setTimeIntervalSeconds(10);
 
     ETSI004Block ETSI004_KMS{{&response}, {&request, &key}};
     ETSI004_KMS.setID("Tx");
