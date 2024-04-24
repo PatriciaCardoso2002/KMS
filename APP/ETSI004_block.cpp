@@ -1,6 +1,5 @@
 #include "ETSI004_block.h"
 #include "etsi_qkd_004.h"
-#include "load_ascii_20200819.h"
 
 // pull mode não está a ter em conta se recebe verdadeiramente um novo get_key
 
@@ -63,6 +62,11 @@ bool ETSI004Block::runBlock(void){
             std::string metadata_mimetype = msgData["qos"]["metadata_mimetype"];
             setQoS(key_type, key_chunk_size, max_bps, min_bps, jitter, priority, timeout, ttl, metadata_mimetype);
 
+            t_message keyType;
+            keyType.setMessageData(std::to_string(key_type));
+            std::cout << keyType << std::endl;
+            outputSignals[1]->bufferPut(keyType);
+            
             t_message msgSend;
             etsi_qkd_004::Status status = etsi_qkd_004::SUCCESSFUL;
             t_string msgDataSend = etsi_qkd_004::handle_open_connect(key_stream_id,getQoS(),status).dump();

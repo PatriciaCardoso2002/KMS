@@ -1,4 +1,4 @@
-#include "load_ascii_20200819.h"
+#include "load_ascii_2024.h"
 #include "netxpto_20200819.h"
 #include <typeinfo>
 #include <iostream>
@@ -25,21 +25,17 @@ int main(){
     Message response{"Server_response.sgn",10,hType,sWriteMode};
     HandlerMessage response_{"Server_response_.sgn",10,hType,sWriteMode};
     Binary key{"Server_key.sgn",1024,hType,sWriteMode};
+    Message key_type{"key_type.sgn",10,hType,sWriteMode};
 
 
-    LoadAscii readKeys({},{&key});
-    if (param.provider == "Tx"){
-        if (param.fileType == 0){
-            readKeys.setAsciiFileNameExtension(".dat");
-        } else if (param.fileType == 1){ readKeys.setAsciiFileNameExtension(".b64");}
-        readKeys.setAsciiFileName("../generated_keys_TX/sym_tx");
-    } else if (param.provider == "Rx"){
-        if (param.fileType == 0){
-            readKeys.setAsciiFileNameExtension(".dat");
-        } else if (param.fileType == 1){ readKeys.setAsciiFileNameExtension(".b64");}
-        readKeys.setAsciiFileName("../generated_keys_RX/sym_rx");
-    }
+    LoadAscii readKeys({&key_type},{&key});
+    readKeys.setProvider(param.provider);
     readKeys.setAsciiFileNameTailNumber(param.cntFirstVal);
+    if (param.fileType == 0){ // ASCII
+        readKeys.setAsciiFileNameExtension(".dat");
+    } else if (param.fileType == 1) { // B64
+        readKeys.setAsciiFileNameExtension(".b64");
+    }
 
     IPTunnel IPTunnelServer_Server{{},{&request_}};
     IPTunnelServer_Server.setLocalMachineIpAddress(param.rxIpAddress);
@@ -66,7 +62,7 @@ int main(){
     //IPTunnelServer_Client.setTimeIntervalSeconds(10);
     
 
-    ETSI004Block ETSI004_RECON{{&request, &key}, {&response}};
+    ETSI004Block ETSI004_RECON{{&request, &key}, {&response, &key_type}};
     ETSI004_RECON.setID("Rx");
     ETSI004_RECON.setMode(param.etsiMode);
     ETSI004_RECON.setNumKeys((unsigned int) param.numKeys);
