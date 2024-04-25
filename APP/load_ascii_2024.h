@@ -83,7 +83,7 @@ private:
 	t_string asciiFileNameTailNumber{ "" };
 	t_integer asciiFileNameTailNumberModulos{ 0 };
     std::string provider{ "Tx" };
-    unsigned int keyType;
+    t_binary keyType;
 
 
 

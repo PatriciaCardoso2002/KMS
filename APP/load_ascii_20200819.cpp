@@ -46,6 +46,7 @@ bool LoadAscii::runBlock(void)
 
 	int space = outputSignals[0]->space();
 	signal_value_type sTypeOut = outputSignals[0]->getValueType();
+
     /*
 	if (stoi(asciiFileNameTailNumber) > asciiFileNameTailNumberModulos && !cycleModulos) {
 		while (ready && space)

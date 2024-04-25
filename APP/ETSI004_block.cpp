@@ -62,10 +62,9 @@ bool ETSI004Block::runBlock(void){
             std::string metadata_mimetype = msgData["qos"]["metadata_mimetype"];
             setQoS(key_type, key_chunk_size, max_bps, min_bps, jitter, priority, timeout, ttl, metadata_mimetype);
 
-            t_message keyType;
-            keyType.setMessageData(std::to_string(key_type));
-            std::cout << keyType << std::endl;
-            outputSignals[1]->bufferPut(keyType);
+            if (key_type == 0){
+                outputSignals[1]->bufferPut((t_binary)0);
+            } else if (key_type == 1){ outputSignals[1]->bufferPut((t_binary)1);}
             
             t_message msgSend;
             etsi_qkd_004::Status status = etsi_qkd_004::SUCCESSFUL;
@@ -128,8 +127,6 @@ bool ETSI004Block::runBlock(void){
                 etsi_qkd_004::KeyBuffer keyBuffer;
 
                 if (inputSignals[1]->ready() && outputSignals[0]->space() && get_keyResID < num_keys){
-                    std::cout << "INPUT SIGNAL 1: " << inputSignals[1]->ready() << std::endl;
-
                     for(auto k = 0; k < getQoS().key_chunk_size ; k++){
                         t_binary kval{0};
                         inputSignals[1]->bufferGet(&kval);
@@ -140,6 +137,7 @@ bool ETSI004Block::runBlock(void){
                         std::cout << static_cast<int>(c);
                         }
                         std::cout << std::endl;
+                        std::cout << "INPUT SIGNAL 1: " << inputSignals[1]->ready() << std::endl;
                     }
 
                     etsi_qkd_004::Status status = etsi_qkd_004::SUCCESSFUL;
@@ -164,6 +162,7 @@ bool ETSI004Block::runBlock(void){
 
             // Assuming keyBuffer is already filled
             for (int i = 0; i < keyBuffer.length(); i++) {
+                std::cout << "keyBuffer: " << keyBuffer[i] << std::endl;
                 if (keyBuffer[i] == '0') {
                     outputSignals[1]->bufferPut((t_binary)0);
                 }

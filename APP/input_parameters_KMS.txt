@@ -7,11 +7,11 @@ txReceivingPort=54001
 rxIpAddress=127.0.0.1
 rxReceivingPort=54000
 //---------ETSI CONFIGURATION---------
-numKeys=1000
+numKeys=300
 etsiSource=KMS
 etsiDest=KeyProvider
 // 0 - Symmetric, 1 - Oblivious
-keyType=0
+keyType=1
 keyChunkSize=50
 maxBps=0
 minBps=0
@@ -24,4 +24,4 @@ metaMimetype=JSON
 etsiMode=0
 //--------
 // 0 - ASCII, 1 - B64
-fileType=0
+fileType=1

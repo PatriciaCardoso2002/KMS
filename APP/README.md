@@ -3,7 +3,7 @@
 To compile the KMS, use the following command:
 
 ```bash
-g++ -o kms KMS.cpp etsi_qkd_004.cpp ETSI004_block.cpp ip_tunnel_ms_windows_20200819.cpp load_ascii_20200819.cpp message_handler.cpp ms_windows_console_output_common_20200819.cpp netxpto_20200819.cpp save_ascii_2024.cpp
+g++ -o kms KMS.cpp etsi_qkd_004.cpp ETSI004_block.cpp ip_tunnel_ms_windows_20200819.cpp load_ascii_2024.cpp message_handler.cpp ms_windows_console_output_common_20200819.cpp netxpto_20200819.cpp save_ascii_2024.cpp
 ```
 
 ## Compiling KeyProviderServer
@@ -11,7 +11,7 @@ g++ -o kms KMS.cpp etsi_qkd_004.cpp ETSI004_block.cpp ip_tunnel_ms_windows_20200
 To compile the KeyProviderServer, use the following command:
 
 ```bash
-g++ -o key_provider keyProviderServer.cpp etsi_qkd_004.cpp ETSI004_block.cpp ip_tunnel_ms_windows_20200819.cpp load_ascii_20200819.cpp message_handler.cpp ms_windows_console_output_common_20200819.cpp netxpto_20200819.cpp save_ascii_2024.cpp
+g++ -o key_provider keyProviderServer.cpp etsi_qkd_004.cpp ETSI004_block.cpp ip_tunnel_ms_windows_20200819.cpp load_ascii_2024.cpp message_handler.cpp ms_windows_console_output_common_20200819.cpp netxpto_20200819.cpp save_ascii_2024.cpp
 ```
 
 ## Running the program

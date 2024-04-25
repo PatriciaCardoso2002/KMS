@@ -3,6 +3,7 @@
 //#include <fstream>
 
 #include "load_ascii_2024.h"
+const char base64_chars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 
 void LoadAscii::initialize(void){
@@ -17,11 +18,7 @@ void LoadAscii::initialize(void){
 bool LoadAscii::runBlock(void)
 {
     if (inputSignals[0]->ready()){
-        t_message keyType_;
-        inputSignals[0]->bufferGet(&keyType_);
-        keyType = std::stoul(keyType_.getMessageData());
-        std::cout << keyType_ << std::endl;
-        std::cout << keyType << std::endl;
+        inputSignals[0]->bufferGet(&keyType);
     }
     if (keyType == 0){
         if (provider == "Tx"){
@@ -131,21 +128,44 @@ bool LoadAscii::runBlock(void)
 			{
 				case signal_value_type::t_binary:
 				{
-					while (ready && space)
-					{
-						char in = inFile.get();
-						ready--;
-						if (in == '0' || in == '1')
-						{
-							space--;
-							numberOfLoadedValues++;
-							if (in == '0')
-								outputSignals[0]->bufferPut((t_binary)0);
-							if (in == '1')
-								outputSignals[0]->bufferPut((t_binary)1);
-						}
-					}
-					break;
+                    if (asciiFileNameExtension == ".dat"){
+                        while (ready && space)
+                        {
+                            char in = inFile.get();
+                            ready--;
+                            if (in == '0' || in == '1')
+                            {
+                                space--;
+                                numberOfLoadedValues++;
+                                if (in == '0')
+                                    outputSignals[0]->bufferPut((t_binary)0);
+                                if (in == '1')
+                                    outputSignals[0]->bufferPut((t_binary)1);
+                            }
+                        }
+                        break;
+                    } else if (asciiFileNameExtension == ".b64"){
+                        while(ready && space)
+                        {
+                            char in = inFile.get();
+							t_binary b_in = static_cast<t_binary>(in);
+                            ready--;
+							std::cout << "char: " << in << std::endl;
+							std::cout << "bin: " << b_in << std::endl;
+
+							for(char c : base64_chars){
+								if (in == c){
+									space--;
+									numberOfLoadedValues++;
+									outputSignals[0]->bufferPut(static_cast<t_binary>(in));
+									break;
+								}
+							}
+                        }
+                        break;
+                        
+                    }
+					
 				}
 				default:
 					std::cout << "ERROR: load_ascii.cpp (this is not a good way to save non-binary ascii)" << "\n";

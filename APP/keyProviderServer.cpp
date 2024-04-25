@@ -25,7 +25,7 @@ int main(){
     Message response{"Server_response.sgn",10,hType,sWriteMode};
     HandlerMessage response_{"Server_response_.sgn",10,hType,sWriteMode};
     Binary key{"Server_key.sgn",1024,hType,sWriteMode};
-    Message key_type{"key_type.sgn",10,hType,sWriteMode};
+    Binary key_type{"key_type.sgn",10,hType,sWriteMode};
 
 
     LoadAscii readKeys({&key_type},{&key});

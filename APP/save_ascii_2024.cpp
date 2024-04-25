@@ -6,7 +6,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
-const std::string base64_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+const unsigned char base64_chars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 std::string hardcodedBase64Encode(const std::string& in) {
     std::string out;
@@ -165,6 +165,10 @@ bool SaveAscii::runBlock(void)
 			
 			case B64:
 				
+				for (const auto &c : base64_chars) {
+					std::cout << c << ' ';
+				}
+				std::cout << std::endl;
 
 				for (auto k = 0; k < process; k++)
 				{
