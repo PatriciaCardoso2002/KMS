@@ -6,6 +6,7 @@
 #include "ms_windows_console_output_common_20200819.h"
 #include "key_generator.h"
 #include "cv_qokd_ldpc_multi_machine_sdf.h"
+#include "convert_b64.h"
 
 
 int main(){
@@ -18,67 +19,34 @@ int main(){
     Signal::t_write_mode sWriteMode{ Signal::t_write_mode::Ascii};
     Signal::t_header_type hType{ Signal::t_header_type::fullHeader };
 
-    
-    Binary key_generated_RX{"Rx_key.sgn",32,hType,sWriteMode};
-    Binary key_generated_TX{"Tx_key.sgn",32,hType,sWriteMode};
+    Binary key_generated_RX{"Rx_key.sgn",36,hType,sWriteMode};
+    Binary key_generated_TX{"Tx_key.sgn",36,hType,sWriteMode};
+    Binary key_base64RX{"b64_RX_key.sgn",36,hType,sWriteMode};
+    Binary key_base64TX{"b64_TX_key.sgn",36,hType,sWriteMode};
 
     KeyGenerator KEY_GENERATOR{{},{&key_generated_RX,&key_generated_TX}};
     KEY_GENERATOR.setKey_type(param.keyType);
-    printf("Key type: %d\n", KEY_GENERATOR.getKey_type());
-    KEY_GENERATOR.setseed(param.seed);
-    printf("Seed: %d\n", KEY_GENERATOR.getseed());
-    KEY_GENERATOR.initialize();
+    KEY_GENERATOR.setseed((unsigned int)param.seed);
 
-    SaveAscii saveRX{{&key_generated_RX},{}};
-    saveRX.setFile_type(param.fileType);
-    saveRX.setAsciiFolderName("../generated_keys_RX");
-    saveRX.setAsciiFileNameTailNumber("0");
-    saveRX.setAsciiFileNameTailNumberModulos(param.asciiFileNameTailNumberModulos);
+    if(param.fileType == 0){    // ASCII
 
-    if(saveRX.getFile_type() == 1 && KEY_GENERATOR.getKey_type() == 0){
-        saveRX.setAsciiFileName(param.rxFileName);
-        saveRX.setAsciiFileNameExtension("b64");
-    }
-    else if(saveRX.getFile_type()== 1 && KEY_GENERATOR.getKey_type() == 1 )
-    {
-        saveRX.setAsciiFileName(param.rxFileName);
-        saveRX.setAsciiFileNameExtension("b64");
-    }
-    else if(saveRX.getFile_type()== 0 && KEY_GENERATOR.getKey_type() == 0)
-    {
+        SaveAscii saveRX{{&key_generated_RX},{}};
+        saveRX.setFile_type(param.fileType);
+        saveRX.setAsciiFolderName("../generated_keys_RX");
         saveRX.setAsciiFileName(param.rxFileName);
         saveRX.setAsciiFileNameExtension("dat");
-    }
-    else if(saveRX.getFile_type()== 0 && KEY_GENERATOR.getKey_type() == 1)
-    {
-        saveRX.setAsciiFileName(param.rxFileName);
-        saveRX.setAsciiFileNameExtension("dat");
-    }
-    
-    SaveAscii saveTX{{&key_generated_TX},{}};
-    saveTX.setAsciiFolderName("../generated_keys_TX");
-    saveTX.setFile_type(param.fileType);
-    saveTX.setAsciiFileNameTailNumber("0");
-    saveTX.setAsciiFileNameTailNumberModulos(param.asciiFileNameTailNumberModulos);
+        saveRX.setAsciiFileNameTailNumber(param.cntFirstVal);
+        saveRX.setAsciiFileNameTailNumberModulos(0);
 
-    if (saveTX.getFile_type() == 1 && KEY_GENERATOR.getKey_type() == 0) {
-        saveTX.setAsciiFileName(param.txFileName);
-        saveTX.setAsciiFileNameExtension("b64");
-    }
-    else if(saveTX.getFile_type()== 1 && KEY_GENERATOR.getKey_type() == 1){
-        saveTX.setAsciiFileName(param.txFileName);
-        saveTX.setAsciiFileNameExtension("b64");
-    }
-    else if(saveTX.getFile_type()== 0 && KEY_GENERATOR.getKey_type() == 0){
+        SaveAscii saveTX{{&key_generated_TX},{}};
+        saveTX.setFile_type(param.fileType);
+        saveTX.setAsciiFolderName("../generated_keys_TX");
         saveTX.setAsciiFileName(param.txFileName);
         saveTX.setAsciiFileNameExtension("dat");
-    }
-    else if(saveTX.getFile_type()== 0 && KEY_GENERATOR.getKey_type() == 1){
-        saveTX.setAsciiFileName(param.txFileName);
-        saveTX.setAsciiFileNameExtension("dat");
-    }
-    
-    System System_
+        saveTX.setAsciiFileNameTailNumber(param.cntFirstVal);
+        saveTX.setAsciiFileNameTailNumberModulos(0);
+
+        System System_
             {
                 {
                 &KEY_GENERATOR,
@@ -87,8 +55,44 @@ int main(){
                 }
             };
 
-    System_.run();
-    System_.terminate();
+        System_.run();
+        System_.terminate();
+
+    } else if (param.fileType == 1){    // B64
+
+        SaveAscii saveRX{{&key_base64RX},{}};
+        saveRX.setFile_type(param.fileType);
+        saveRX.setAsciiFolderName("../generated_keys_RX");
+        saveRX.setAsciiFileName(param.rxFileName);
+        saveRX.setAsciiFileNameExtension("b64");
+        saveRX.setAsciiFileNameTailNumber(param.cntFirstVal);
+        saveRX.setAsciiFileNameTailNumberModulos(0);
+
+        SaveAscii saveTX{{&key_base64TX},{}};
+        saveTX.setFile_type(param.fileType);
+        saveTX.setAsciiFolderName("../generated_keys_TX");
+        saveTX.setAsciiFileName(param.txFileName);
+        saveTX.setAsciiFileNameExtension("b64");
+        saveTX.setAsciiFileNameTailNumber(param.cntFirstVal);
+        saveTX.setAsciiFileNameTailNumberModulos(0);
+
+        ConvertB64 b64_converter{{&key_generated_TX, &key_generated_RX},{&key_base64TX, &key_base64RX}};
+
+        System System_
+            {
+                {
+                &KEY_GENERATOR,
+                &b64_converter,
+                &saveRX,
+                &saveTX,
+                }
+            };
+        
+        System_.run();
+        System_.terminate();
+    } else {
+        std::cout << "ERROR RECON_EMULATOR MAIN: Bad File Type" << std::endl;
+    }
 
     return 0;
 }
