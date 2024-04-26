@@ -79,9 +79,8 @@ bool ETSI004Block::runBlock(void){
                 std::cout << "RECEIVED OPEN_CONNECT_RESPONSE" << std::endl;
             }
 
-            get_keyID = 0;
             t_message msgSend;
-            t_string msgDataSend = etsi_qkd_004::get_key(key_stream_id,get_keyID++,metadata_client).dump();
+            t_string msgDataSend = etsi_qkd_004::get_key(key_stream_id,keyID_Tx++,metadata_client).dump();
             msgSend.setMessageData(msgDataSend);
             outputSignals[0]->bufferPut(msgSend);
 
@@ -111,7 +110,7 @@ bool ETSI004Block::runBlock(void){
                 }
 
                 etsi_qkd_004::Status status = etsi_qkd_004::SUCCESSFUL;
-                t_string msgDataSend = etsi_qkd_004::handle_get_key(status,keyBuffer,get_keyResID++,metadata_server).dump();
+                t_string msgDataSend = etsi_qkd_004::handle_get_key(status,keyBuffer,keyID_Rx++,metadata_server).dump();
 
                 t_message msgSend;
                 msgSend.setMessageData(msgDataSend);
@@ -126,7 +125,7 @@ bool ETSI004Block::runBlock(void){
                 
                 etsi_qkd_004::KeyBuffer keyBuffer;
 
-                if (inputSignals[1]->ready() && outputSignals[0]->space() && get_keyResID < num_keys){
+                if (inputSignals[1]->ready() && outputSignals[0]->space() && keyID_Rx < num_keys){
                     for(auto k = 0; k < getQoS().key_chunk_size ; k++){
                         t_binary kval{0};
                         inputSignals[1]->bufferGet(&kval);
@@ -141,7 +140,7 @@ bool ETSI004Block::runBlock(void){
                     }
 
                     etsi_qkd_004::Status status = etsi_qkd_004::SUCCESSFUL;
-                    t_string msgDataSend = etsi_qkd_004::handle_get_key(status,keyBuffer,get_keyResID++,metadata_server).dump();
+                    t_string msgDataSend = etsi_qkd_004::handle_get_key(status,keyBuffer,keyID_Rx++,metadata_server).dump();
                     t_message msgSend;
                     msgSend.setMessageData(msgDataSend);
                     outputSignals[0]->bufferPut(msgSend);
@@ -156,23 +155,28 @@ bool ETSI004Block::runBlock(void){
             }
 
             etsi_qkd_004::KeyBuffer keyBuffer = msgData["key_buffer"].get<etsi_qkd_004::KeyBuffer>();
-            unsigned int get_key_index = msgData["index"].get<unsigned int>();
+            unsigned int key_index = msgData["index"].get<unsigned int>();
             metadata_server.size = msgData["metadata"]["size"];
             metadata_server.buffer = msgData["metadata"]["buffer"];
 
-            // Assuming keyBuffer is already filled
+            // keyBuffer to key signal
             for (int i = 0; i < keyBuffer.size(); i++) {
-                std::cout << "keyBuffer: " << keyBuffer[i] << std::endl;
                 outputSignals[1]->bufferPut(keyBuffer[i]);
             }
 
-            if (mode == PULL && get_keyID < num_keys){
+            // key_index to index signal
+            t_message index_;
+            index_.setMessageData(std::to_string(key_index));
+            outputSignals[2]->bufferPut(index_);
+
+            // create response message
+            if (mode == PULL && keyID_Tx < num_keys){
                 t_message msgSend;
-                t_string msgDataSend = etsi_qkd_004::get_key(key_stream_id,get_keyID++,metadata_client).dump();
+                t_string msgDataSend = etsi_qkd_004::get_key(key_stream_id,keyID_Tx++,metadata_client).dump();
                 msgSend.setMessageData(msgDataSend);
                 outputSignals[0]->bufferPut(msgSend);
 
-            } else if ( get_key_index == num_keys-1){
+            } else if ( key_index == num_keys-1){
                 t_message msgSend;
                 t_string msgDataSend = etsi_qkd_004::close(key_stream_id).dump();
                 msgSend.setMessageData(msgDataSend);

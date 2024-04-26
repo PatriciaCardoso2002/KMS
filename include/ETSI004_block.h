@@ -26,6 +26,9 @@ public:
     void setNumKeys(unsigned int NumKeys){num_keys = NumKeys;}
     unsigned int getNumKeys(){return num_keys;}
 
+    // void setKeyWriteType(t_integer option) { keyWriteType = option;}
+    // t_integer getKeyWriteType(void) { return keyWriteType;}
+
     void setQoS(unsigned int key_type = 0, unsigned int key_chunk_size = 0, unsigned int max_bps = 0, unsigned int min_bps = 0, unsigned int jitter = 0, unsigned int priority = 0, unsigned int timeout = 0, unsigned int ttl = 0, std::string metadata_mimetype = "JSON"){        
         this->qos.key_type = key_type;
         this->qos.key_chunk_size = key_chunk_size;
@@ -82,7 +85,8 @@ public:
 
 private:
 std::vector<t_message> receivedMessages = {};
-CircularBuffer<t_message> messagesToSend{ 5000 };
+
+//t_integer keyWriteType{ 0 }; // 0-ASCII , 1-B64
 
 unsigned int mode{0};
 t_string ID;
@@ -94,13 +98,13 @@ json msgCommand;
 json msgData;
 
 unsigned int num_keys = 50;
-unsigned int get_keyResID = 0;
-unsigned int get_keyID = 0;
+unsigned int keyID_Rx = 0;
+unsigned int keyID_Tx = 0;
 
 etsi_qkd_004::URI source = "source";
 etsi_qkd_004::URI destination = "destination";
 etsi_qkd_004::QoS qos;
-etsi_qkd_004::UUID key_stream_id = "1";
+etsi_qkd_004::UUID key_stream_id = "12345678-1234-1234-1234-123456789012";
 etsi_qkd_004::Metadata metadata_client = {32,"metadata about the key requested"};
 etsi_qkd_004::Metadata metadata_server = {32,"metadata about the key sent"};
 

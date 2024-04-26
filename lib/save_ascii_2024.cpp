@@ -90,31 +90,53 @@ bool SaveAscii::runBlock(void)
 		case delimiter_type::ConcatenatedValues:
 		{
 			auto process = ready;
-			if (endFile > 0) process = std::min(process, endFile - outPosition);
+			if(!insertIndex){
+				if (endFile > 0) process = std::min(process, endFile - outPosition);
+			}
+			
+			std::cout << "Process: " << process << std::endl;
 
 			switch (File_type)
 			{
 			case ASCII:
-				
-				for (auto k = 0; k < process; k++)
-				{
-					t_binary val{ 0 };
-					inputSignals[0]->bufferGet(&val);
-					if (val == 0) outFile.put('0');
-					if (val == 1) outFile.put('1');
-					column++;
-					if (column == endLine)
+
+				if(insertIndex){
+					for (auto k = 0; k < process; k++)
 					{
-						column = 0;
-						
-						if (insertEndLine) {
-							outFile.put('\n');
+						t_binary val{ 0 };
+						inputSignals[0]->bufferGet(&val);
+						if (val == 0) outFile.put('0');
+						if (val == 1) outFile.put('1');
+						column++;
+					}
+					if(inputSignals[1]->ready()){
+						t_message id;
+						inputSignals[1]->bufferGet(&id);
+						outFile << " [index]: " << id.getMessageData() << "\n";
+						//int length = (" [index]: " + id.getMessageData()).length();
+						outPosition = outPosition + process;
+					}
+				} else {
+					for (auto k = 0; k < process; k++)
+					{
+						t_binary val{ 0 };
+						inputSignals[0]->bufferGet(&val);
+						if (val == 0) outFile.put('0');
+						if (val == 1) outFile.put('1');
+						column++;
+						if (column == endLine)
+						{
+							column = 0;
+							
+							if (insertEndLine) {
+								outFile.put('\n');
+							}
 						}
 					}
+					outPosition = outPosition + process;
 				}
-				outPosition = outPosition + process;
-
-				if (outPosition == endFile)
+				
+				if (outPosition >= endFile)
 				{
 					outFile.close();
 					t_string aux_str_new = asciiFolderName + "/" + asciiFileName_;
@@ -143,7 +165,24 @@ bool SaveAscii::runBlock(void)
 			
 			case B64:
 
-				for (auto k = 0; k < process; k++)
+				if(insertIndex){
+					for (auto k = 0; k < process; k++)
+					{
+						t_binary val{ 0 };
+						inputSignals[0]->bufferGet(&val);
+						outFile.put(static_cast<char>(val));
+						column++;
+					}
+					if(inputSignals[1]->ready()){
+						t_message id;
+						inputSignals[1]->bufferGet(&id);
+						outFile << " [index]: " << id.getMessageData() << "\n";
+						//int length = (" [index]: " + id.getMessageData()).length();
+						outPosition = outPosition + process;
+						std::cout << "outPos: " << outPosition << std::endl;
+					}
+				} else {
+					for (auto k = 0; k < process; k++)
 					{
 						t_binary val{ 0 };
 						inputSignals[0]->bufferGet(&val);
@@ -157,10 +196,11 @@ bool SaveAscii::runBlock(void)
 								outFile.put('\n');
 							}
 						}
+					}
+					outPosition = outPosition + process;
 				}
-				outPosition = outPosition + process;
 
-				if (outPosition == endFile)
+				if (outPosition >= endFile)
 				{
 					outFile.close();
 					t_string aux_str_new = asciiFolderName + "/" + asciiFileName_;

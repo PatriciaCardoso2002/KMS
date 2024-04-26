@@ -31,9 +31,8 @@ int main(){
     LoadAscii readKeys({&key_type},{&key});
     readKeys.setProvider(param.provider);
     readKeys.setAsciiFileNameTailNumber(param.cntFirstVal);
-    if (param.fileType == 0){ // ASCII
-        readKeys.setAsciiFileNameExtension(".dat");
-    } else if (param.fileType == 1) { // B64
+
+    if(param.fileType){
         readKeys.setAsciiFileNameExtension(".b64");
     }
 

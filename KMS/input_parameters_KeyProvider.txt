@@ -23,7 +23,7 @@ metaMimetype=JSON
 // 0 - PUSH, 1 - PULL
 etsiMode=0
 //-----KeyProviderServer-----
-provider=Rx
+provider=Tx
 // 0 - ASCII, 1 - B64
 fileType=1
 cntFirstVal=0

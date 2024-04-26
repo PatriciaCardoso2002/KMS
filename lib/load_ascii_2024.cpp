@@ -148,11 +148,7 @@ bool LoadAscii::runBlock(void)
                         while(ready && space)
                         {
                             char in = inFile.get();
-							t_binary b_in = static_cast<t_binary>(in);
                             ready--;
-							std::cout << "char: " << in << std::endl;
-							std::cout << "bin: " << b_in << std::endl;
-
 							for(char c : base64_chars){
 								if (in == c){
 									space--;

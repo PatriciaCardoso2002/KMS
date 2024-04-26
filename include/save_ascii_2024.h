@@ -50,6 +50,10 @@ public:
 	void setAsciiFolderName(t_string aFolderName) { asciiFolderName = aFolderName; }
 	t_string const getAsciiFolderName(void) { return asciiFolderName; }
 
+	void setInsertId(t_bool option) { insertIndex = option; }
+	t_bool getInsertId(void) { return insertIndex; }
+
+
 private:
 
 	signal_value_type dataType{ signal_value_type::t_binary };
@@ -57,6 +61,7 @@ private:
 
 	t_bool replacePreviousKeys{ true };
 	t_bool insertEndLine{ true };
+	t_bool insertIndex{ false };
 
 	
 	t_string aux_asciiFileName{ "aux_file" };

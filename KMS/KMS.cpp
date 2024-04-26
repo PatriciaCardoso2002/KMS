@@ -24,13 +24,15 @@ int main(){
     Message response{"Client_response.sgn",10,hType,sWriteMode};
     HandlerMessage response_{"Client_response_.sgn",10,hType,sWriteMode};
     Binary key{"Client_key.sgn",1024,hType,sWriteMode};
+    Message index{"index.sgn",5,hType,sWriteMode};
 
-    SaveAscii saveKeys{{&key},{}};
+    SaveAscii saveKeys{{&key, &index},{}};
     saveKeys.setFile_type(param.fileType);
     saveKeys.setAsciiFolderName("../KMS_keys");
     saveKeys.setAsciiFileName("saved_keys");
     saveKeys.setAsciiFileNameTailNumber("0");
     saveKeys.setAsciiFileNameTailNumberModulos(0);
+    saveKeys.setInsertId(true);
 
     if(param.fileType){
         saveKeys.setAsciiFileNameExtension("b64");
@@ -60,7 +62,7 @@ int main(){
     IPTunnelClient_Server.setVerboseMode(param.verboseMode);
     //IPTunnelClient_Server.setTimeIntervalSeconds(10);
 
-    ETSI004Block ETSI004_KMS{{&response}, {&request, &key}};
+    ETSI004Block ETSI004_KMS{{&response}, {&request, &key, &index}};
     ETSI004_KMS.setID("Tx");
     ETSI004_KMS.setSource(param.etsiSource);
     ETSI004_KMS.setDestination(param.etsiDest);
