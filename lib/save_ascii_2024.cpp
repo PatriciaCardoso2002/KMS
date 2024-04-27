@@ -93,8 +93,6 @@ bool SaveAscii::runBlock(void)
 			if(!insertIndex){
 				if (endFile > 0) process = std::min(process, endFile - outPosition);
 			}
-			
-			std::cout << "Process: " << process << std::endl;
 
 			switch (File_type)
 			{
@@ -179,7 +177,6 @@ bool SaveAscii::runBlock(void)
 						outFile << " [index]: " << id.getMessageData() << "\n";
 						//int length = (" [index]: " + id.getMessageData()).length();
 						outPosition = outPosition + process;
-						std::cout << "outPos: " << outPosition << std::endl;
 					}
 				} else {
 					for (auto k = 0; k < process; k++)

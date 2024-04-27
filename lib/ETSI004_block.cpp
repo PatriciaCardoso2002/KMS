@@ -102,11 +102,11 @@ bool ETSI004Block::runBlock(void){
                     }
                 }
                 if (getVerboseMode()){
+                    std::cout << "keyBuffer: [";
                     for (unsigned char c : keyBuffer) {
                     std::cout << static_cast<int>(c);
                     }
-                    std::cout << std::endl;
-                    std::cout << "INPUT SIGNAL 1: " << inputSignals[1]->ready() << std::endl;
+                    std::cout << "]" << std::endl;
                 }
 
                 etsi_qkd_004::Status status = etsi_qkd_004::SUCCESSFUL;
@@ -132,11 +132,11 @@ bool ETSI004Block::runBlock(void){
                         keyBuffer.push_back(kval);
                     }
                     if (getVerboseMode()){
+                        std::cout << "keyBuffer: [";
                         for (unsigned char c : keyBuffer) {
                         std::cout << static_cast<int>(c);
                         }
-                        std::cout << std::endl;
-                        std::cout << "INPUT SIGNAL 1: " << inputSignals[1]->ready() << std::endl;
+                        std::cout << "]" << std::endl;
                     }
 
                     etsi_qkd_004::Status status = etsi_qkd_004::SUCCESSFUL;
@@ -144,7 +144,6 @@ bool ETSI004Block::runBlock(void){
                     t_message msgSend;
                     msgSend.setMessageData(msgDataSend);
                     outputSignals[0]->bufferPut(msgSend);
-                    std::cout << "RESPOSTA COLOCADA NO BUFFER" << std::endl;
                     alive = true;
                     break;
                 } else {alive = true; break;}
@@ -192,9 +191,6 @@ bool ETSI004Block::runBlock(void){
             outputSignals[0]->bufferPut(msgSend);
 
             if(getVerboseMode()){
-                std::cout << "msgJSON: " << msgJson << std::endl;
-                std::cout << "msgCommand:  " << msgCommand << std::endl;
-                std::cout << "msgData: " << msgData << std::endl;
                 for(const auto& msg : receivedMessages){
                     std::cout << "MSG: " << i << " - " << msg << std::endl;
                     i++;
@@ -206,9 +202,6 @@ bool ETSI004Block::runBlock(void){
             //alive = false;
         } else if (msgCommand == "CLOSE_RESPONSE"){
             if(getVerboseMode()){
-                std::cout << "msgJSON: " << msgJson << std::endl;
-                std::cout << "msgCommand:  " << msgCommand << std::endl;
-                std::cout << "msgData: " << msgData << std::endl;
                 for(const auto& msg : receivedMessages){
                     std::cout << "MSG: " << i << " - " << msg << std::endl;
                     i++;
