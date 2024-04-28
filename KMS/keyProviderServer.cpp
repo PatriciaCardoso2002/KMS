@@ -45,12 +45,12 @@ int main(){
 
     // RX
     DestinationTranslationTable dttRxTransmitter;
-    dttRxTransmitter.add("Msg_Rx", 0);
+    dttRxTransmitter.add("Key_Provider", 0);
     MessageHandler MessageHandlerServerRX{ {&request_},{&request},dttRxTransmitter,FUNCTIONING_AS_RX};
     
     // TX
     InputTranslationTable ittTxTransmitter;
-    ittTxTransmitter.add(0, {"Msg_Tx", "Msg_Rx"});
+    ittTxTransmitter.add(0, {"KMS_South", "Key_Provider"});
     MessageHandler MessageHandlerServerTX{ {&response},{&response_},FUNCTIONING_AS_TX,ittTxTransmitter};
 
     IPTunnel IPTunnelServer_Client{{&response_},{}};

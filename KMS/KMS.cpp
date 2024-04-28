@@ -11,75 +11,132 @@
 #include "etsi_qkd_004.h"
 #include "cv_qokd_ldpc_multi_machine_sdf.h"
 
+Signal::t_write_mode sWriteMode{ Signal::t_write_mode::Ascii};
+Signal::t_header_type hType{ Signal::t_header_type::fullHeader };
+
+namespace SOUTH {
+
+    Message request{"south_request.sgn",10,hType,sWriteMode};
+    HandlerMessage request_{"south_request_.sgn",10,hType,sWriteMode};
+    Message response{"south_response.sgn",10,hType,sWriteMode};
+    HandlerMessage response_{"south_response_.sgn",10,hType,sWriteMode};
+    Binary key{"south_key.sgn",1024,hType,sWriteMode};
+    Message index{"south_index.sgn",5,hType,sWriteMode};
+
+    SaveAscii saveKeys{{&key, &index},{}};
+    DestinationTranslationTable dttRxTransmitter;
+    MessageHandler MessageHandlerRX{{&response_},{&response}};
+    InputTranslationTable ittTxTransmitter;
+    MessageHandler MessageHandlerTX{{&request},{&request_}};
+    IPTunnel IPTunnel_Client{{&request_},{}};
+    IPTunnel IPTunnel_Server{{},{&response_}};
+    ETSI004Block ETSI004{{&response},{&request, &key, &index}};
+
+    void setup(DvQkdLdpcInputParameters param){
+
+        saveKeys.setFile_type(param.fileType);
+        saveKeys.setAsciiFolderName("../KMS_keys");
+        saveKeys.setAsciiFileName("saved_keys");
+        saveKeys.setAsciiFileNameTailNumber("0");
+        saveKeys.setAsciiFileNameTailNumberModulos(0);
+        saveKeys.setInsertId(true);
+
+        if(param.fileType) saveKeys.setAsciiFileNameExtension("b64");
+
+        dttRxTransmitter.add("KMS_South", 0);
+        MessageHandlerRX = MessageHandler{{&response_},{&response}, dttRxTransmitter, FUNCTIONING_AS_RX};
+        ittTxTransmitter.add(0, {"Key_Provider", "KMS_South"});
+        MessageHandlerTX = MessageHandler{{&request},{&request_}, FUNCTIONING_AS_TX, ittTxTransmitter};
+
+        IPTunnel_Client.setLocalMachineIpAddress(param.txIpAddress);
+        IPTunnel_Client.setRemoteMachineIpAddress(param.rxIpAddress);
+        IPTunnel_Client.setRemoteMachinePort(param.rxReceivingPort);
+        IPTunnel_Client.setVerboseMode(param.verboseMode);
+
+        IPTunnel_Server.setLocalMachineIpAddress(param.txIpAddress);
+        IPTunnel_Server.setRemoteMachineIpAddress(param.rxIpAddress);
+        IPTunnel_Server.setLocalMachinePort(param.txReceivingPort);
+        IPTunnel_Server.setVerboseMode(param.verboseMode);
+
+        ETSI004.setID("Tx");
+        ETSI004.setSource(param.etsiSource);
+        ETSI004.setDestination(param.etsiDest);
+        ETSI004.setQoS((unsigned int) param.keyType, (unsigned int) param.keyChunkSize, (unsigned int) param.maxBps, (unsigned int) param.minBps, (unsigned int) param.jitter, (unsigned int) param.priority, (unsigned int) param.timeout, (unsigned int) param.ttl, param.metaMimetype );
+        ETSI004.setMode((unsigned int) param.etsiMode);
+        ETSI004.setNumKeys((unsigned int) param.numKeys);
+        ETSI004.setVerboseMode(param.verboseMode);
+    }
+}
+
+namespace NORTH {
+
+    Message request{"north_request.sgn",10,hType,sWriteMode};
+    HandlerMessage request_{"north_request_.sgn",10,hType,sWriteMode};
+    Message response{"north_response.sgn",10,hType,sWriteMode};
+    HandlerMessage response_{"north_response_.sgn",10,hType,sWriteMode};
+    Binary key{"north_key.sgn",1024,hType,sWriteMode};
+    Binary key_type{"north_key_type.sgn",5,hType,sWriteMode};
+
+    LoadAscii readKeys({&key_type},{&key}); // precisa de ser alterado para ter em conta nome dos ficheiros criados pelo kms e index, etc..
+    IPTunnel IPTunnel_Server{{},{&request_}};
+    DestinationTranslationTable dttRxTransmitter;
+    MessageHandler MessageHandlerRX{{&request_},{&request}};
+    InputTranslationTable ittTxTransmitter;
+    MessageHandler MessageHandlerTX{{&response},{&response_}};
+    IPTunnel IPTunnel_Client{{&response_},{}};
+    ETSI004Block ETSI004{{&request, &key},{&response, &key_type}};
+
+    void setup(DvQkdLdpcInputParameters param) {
+
+        readKeys.setAsciiFileNameTailNumber(param.cntFirstVal);
+        if(param.fileType) readKeys.setAsciiFileNameExtension(".b64");
+
+        IPTunnel_Server.setLocalMachineIpAddress(param.rxIpAddress);
+        IPTunnel_Server.setRemoteMachineIpAddress(param.txIpAddress);
+        IPTunnel_Server.setLocalMachinePort(param.rxReceivingPort);
+        IPTunnel_Server.setVerboseMode(param.verboseMode);
+
+        IPTunnel_Client.setLocalMachineIpAddress(param.rxIpAddress);
+        IPTunnel_Client.setRemoteMachineIpAddress(param.txIpAddress);
+        IPTunnel_Client.setRemoteMachinePort(param.txReceivingPort);
+        IPTunnel_Client.setVerboseMode(param.verboseMode);
+
+        dttRxTransmitter.add("KMS_North", 0);
+        MessageHandlerRX = MessageHandler{{&request_},{&request}, dttRxTransmitter, FUNCTIONING_AS_RX};
+        ittTxTransmitter.add(0, {"APP", "KMS_North"});
+        MessageHandlerTX = MessageHandler{{&response},{&response_}, FUNCTIONING_AS_TX, ittTxTransmitter };
+
+        ETSI004.setID("Rx");
+        ETSI004.setMode(param.etsiMode);
+        ETSI004.setNumKeys( (unsigned int) param.numKeys);
+        ETSI004.setVerboseMode(param.verboseMode);
+    }
+}
+
 int main(){
 
     DvQkdLdpcInputParameters param = DvQkdLdpcInputParameters();
     param.setInputParametersFileName("input_parameters_KMS.txt");
     param.readSystemInputParameters();
-    
-    Signal::t_write_mode sWriteMode{ Signal::t_write_mode::Ascii};
-    Signal::t_header_type hType{ Signal::t_header_type::fullHeader };
-    Message request{"Client_request.sgn",10,hType,sWriteMode};
-    HandlerMessage request_{"Client_request_.sgn",10,hType,sWriteMode};
-    Message response{"Client_response.sgn",10,hType,sWriteMode};
-    HandlerMessage response_{"Client_response_.sgn",10,hType,sWriteMode};
-    Binary key{"Client_key.sgn",1024,hType,sWriteMode};
-    Message index{"index.sgn",5,hType,sWriteMode};
 
-    SaveAscii saveKeys{{&key, &index},{}};
-    saveKeys.setFile_type(param.fileType);
-    saveKeys.setAsciiFolderName("../KMS_keys");
-    saveKeys.setAsciiFileName("saved_keys");
-    saveKeys.setAsciiFileNameTailNumber("0");
-    saveKeys.setAsciiFileNameTailNumberModulos(0);
-    saveKeys.setInsertId(true);
-
-    if(param.fileType){
-        saveKeys.setAsciiFileNameExtension("b64");
-    }
-
-    // RX
-    DestinationTranslationTable dttRxTransmitter;
-    dttRxTransmitter.add("Msg_Tx", 0);
-    MessageHandler MessageHandlerClientRX{ {&response_},{&response},dttRxTransmitter,FUNCTIONING_AS_RX};
-
-    // TX
-    InputTranslationTable ittTxTransmitter;
-    ittTxTransmitter.add(0, {"Msg_Rx", "Msg_Tx"});
-    MessageHandler MessageHandlerClientTX{ {&request},{&request_},FUNCTIONING_AS_TX,ittTxTransmitter};
-    
-    IPTunnel IPTunnelClient_Client{{&request_},{}};
-    IPTunnelClient_Client.setLocalMachineIpAddress(param.txIpAddress);
-    IPTunnelClient_Client.setRemoteMachineIpAddress(param.rxIpAddress);
-    IPTunnelClient_Client.setRemoteMachinePort(param.rxReceivingPort);
-    IPTunnelClient_Client.setVerboseMode(param.verboseMode);
-    //IPTunnelClient_Client.setTimeIntervalSeconds(10);
-
-    IPTunnel IPTunnelClient_Server{{},{&response_}};
-    IPTunnelClient_Server.setLocalMachineIpAddress(param.txIpAddress);
-    IPTunnelClient_Server.setRemoteMachineIpAddress(param.rxIpAddress);
-    IPTunnelClient_Server.setLocalMachinePort(param.txReceivingPort);
-    IPTunnelClient_Server.setVerboseMode(param.verboseMode);
-    //IPTunnelClient_Server.setTimeIntervalSeconds(10);
-
-    ETSI004Block ETSI004_KMS{{&response}, {&request, &key, &index}};
-    ETSI004_KMS.setID("Tx");
-    ETSI004_KMS.setSource(param.etsiSource);
-    ETSI004_KMS.setDestination(param.etsiDest);
-    ETSI004_KMS.setQoS((unsigned int) param.keyType, (unsigned int) param.keyChunkSize, (unsigned int) param.maxBps, (unsigned int) param.minBps, (unsigned int) param.jitter, (unsigned int) param.priority, (unsigned int) param.timeout, (unsigned int) param.ttl, param.metaMimetype );
-    ETSI004_KMS.setMode((unsigned int) param.etsiMode);
-    ETSI004_KMS.setNumKeys((unsigned int) param.numKeys);
-    ETSI004_KMS.setVerboseMode(param.verboseMode);
+    SOUTH::setup(param);
+    NORTH::setup(param);
 
     System System_
             {
                 {
-                &saveKeys,
-                &ETSI004_KMS,
-                &IPTunnelClient_Client,
-                &IPTunnelClient_Server,
-                &MessageHandlerClientTX,
-                &MessageHandlerClientRX,
+                &SOUTH::saveKeys,
+                &SOUTH::ETSI004,
+                &SOUTH::IPTunnel_Client,
+                &SOUTH::IPTunnel_Server,
+                &SOUTH::MessageHandlerTX,
+                &SOUTH::MessageHandlerRX,
+                &NORTH::readKeys,
+                &NORTH::IPTunnel_Server,
+                &NORTH::ETSI004,
+                &NORTH::IPTunnel_Client,
+                &NORTH::MessageHandlerTX,
+                &NORTH::MessageHandlerRX
                 }
             };
     
