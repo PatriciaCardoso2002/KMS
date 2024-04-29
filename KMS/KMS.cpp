@@ -10,6 +10,8 @@
 #include "ETSI004_block.h"
 #include "etsi_qkd_004.h"
 #include "cv_qokd_ldpc_multi_machine_sdf.h"
+#include "key_sync.h"
+#include "KeySync_Block.h"
 
 Signal::t_write_mode sWriteMode{ Signal::t_write_mode::Ascii};
 Signal::t_header_type hType{ Signal::t_header_type::fullHeader };
@@ -120,10 +122,46 @@ namespace NORTH {
     }
 }
 
+namespace KeySync {
+
+    Message request{"sync_request.sgn",1000,hType,sWriteMode};
+    HandlerMessage request_{"sync_request_.sgn",1000,hType,sWriteMode};
+    Message response{"sync_response.sgn",1000,hType,sWriteMode};
+    HandlerMessage response_{"sync_response_.sgn",1000,hType,sWriteMode};
+
+    DestinationTranslationTable dttRxTransmitter;
+    MessageHandler MessageHandlerRX{{&response_},{&response}};
+    InputTranslationTable ittTxTransmitter;
+    MessageHandler MessageHandlerTX{{&request},{&request_}};
+    IPTunnel IPTunnel_Client{{&request_},{}};
+    IPTunnel IPTunnel_Server{{},{&response_}};
+    KeySyncBlock KeySync{{&response,&SOUTH::index},{&request}};
+
+    void setup(){
+
+        dttRxTransmitter.add("Key_Sync", 0);
+        MessageHandlerRX = MessageHandler{{&response_},{&response}, dttRxTransmitter, FUNCTIONING_AS_RX};
+        ittTxTransmitter.add(0, {"KMS_Peer", "Key_Sync"});
+        MessageHandlerTX = MessageHandler{{&request},{&request_}, FUNCTIONING_AS_TX, ittTxTransmitter};
+
+        IPTunnel_Client.setLocalMachineIpAddress("127.0.0.1");
+        IPTunnel_Client.setRemoteMachineIpAddress("127.0.0.1");
+        IPTunnel_Client.setRemoteMachinePort(54005);
+        IPTunnel_Client.setVerboseMode(true);
+
+        IPTunnel_Server.setLocalMachineIpAddress("127.0.0.1");
+        IPTunnel_Server.setRemoteMachineIpAddress("127.0.0.1");
+        IPTunnel_Server.setLocalMachinePort(54006);
+        IPTunnel_Server.setVerboseMode(true);
+
+    }
+}
+
 int main(){
 
     SOUTH::setup();
     NORTH::setup();
+    KeySync::setup();
 
     System System_
             {
@@ -134,12 +172,17 @@ int main(){
                 &SOUTH::IPTunnel_Server,
                 &SOUTH::MessageHandlerTX,
                 &SOUTH::MessageHandlerRX,
+                &KeySync::KeySync,
+                &KeySync::IPTunnel_Client,
+                &KeySync::IPTunnel_Server,
+                &KeySync::MessageHandlerTX,
+                &KeySync::MessageHandlerRX,
                 &NORTH::readKeys,
                 &NORTH::IPTunnel_Server,
                 &NORTH::ETSI004,
                 &NORTH::IPTunnel_Client,
                 &NORTH::MessageHandlerTX,
-                &NORTH::MessageHandlerRX
+                &NORTH::MessageHandlerRX,
                 }
             };
     
