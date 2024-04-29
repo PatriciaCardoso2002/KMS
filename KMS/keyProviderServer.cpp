@@ -14,7 +14,7 @@
 int main(){
     
     DvQkdLdpcInputParameters param = DvQkdLdpcInputParameters();
-    param.setInputParametersFileName("input_parameters_KeyProvider.txt");
+    param.setInputParametersFileName("input_keyProvider.txt");
     param.readSystemInputParameters();
 
     Signal::t_write_mode sWriteMode{ Signal::t_write_mode::Ascii};
@@ -63,7 +63,7 @@ int main(){
 
     ETSI004Block ETSI004_RECON{{&request, &key}, {&response, &key_type}};
     ETSI004_RECON.setID("Rx");
-    ETSI004_RECON.setMode(param.etsiMode);
+    ETSI004_RECON.setMode(ETSI004Block::PUSH);
     ETSI004_RECON.setNumKeys((unsigned int) param.numKeys);
     ETSI004_RECON.setVerboseMode(param.verboseMode);
 

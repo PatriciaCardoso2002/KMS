@@ -16,10 +16,10 @@ Signal::t_header_type hType{ Signal::t_header_type::fullHeader };
 
 namespace SOUTH {
 
-    Message request{"south_request.sgn",10,hType,sWriteMode};
-    HandlerMessage request_{"south_request_.sgn",10,hType,sWriteMode};
-    Message response{"south_response.sgn",10,hType,sWriteMode};
-    HandlerMessage response_{"south_response_.sgn",10,hType,sWriteMode};
+    Message request{"south_request.sgn",1000,hType,sWriteMode};
+    HandlerMessage request_{"south_request_.sgn",1000,hType,sWriteMode};
+    Message response{"south_response.sgn",1000,hType,sWriteMode};
+    HandlerMessage response_{"south_response_.sgn",1000,hType,sWriteMode};
     Binary key{"south_key.sgn",1024,hType,sWriteMode};
     Message index{"south_index.sgn",5,hType,sWriteMode};
 
@@ -32,15 +32,18 @@ namespace SOUTH {
     IPTunnel IPTunnel_Server{{},{&response_}};
     ETSI004Block ETSI004{{&response},{&request, &key, &index}};
 
-    void setup(DvQkdLdpcInputParameters param){
+    void setup(){
+
+        DvQkdLdpcInputParameters param = DvQkdLdpcInputParameters();
+        param.setInputParametersFileName("input_south.txt");
+        param.readSystemInputParameters();
 
         saveKeys.setFile_type(param.fileType);
-        saveKeys.setAsciiFolderName("../KMS_keys");
-        saveKeys.setAsciiFileName("saved_keys");
+        saveKeys.setAsciiFolderName("../saved_keys");
+        saveKeys.setAsciiFileName(param.keyType ? "obl_keys" : "sym_keys");
         saveKeys.setAsciiFileNameTailNumber("0");
         saveKeys.setAsciiFileNameTailNumberModulos(0);
         saveKeys.setInsertId(true);
-
         if(param.fileType) saveKeys.setAsciiFileNameExtension("b64");
 
         dttRxTransmitter.add("KMS_South", 0);
@@ -59,10 +62,10 @@ namespace SOUTH {
         IPTunnel_Server.setVerboseMode(param.verboseMode);
 
         ETSI004.setID("Tx");
+        ETSI004.setMode(ETSI004Block::PUSH);
         ETSI004.setSource(param.etsiSource);
         ETSI004.setDestination(param.etsiDest);
         ETSI004.setQoS((unsigned int) param.keyType, (unsigned int) param.keyChunkSize, (unsigned int) param.maxBps, (unsigned int) param.minBps, (unsigned int) param.jitter, (unsigned int) param.priority, (unsigned int) param.timeout, (unsigned int) param.ttl, param.metaMimetype );
-        ETSI004.setMode((unsigned int) param.etsiMode);
         ETSI004.setNumKeys((unsigned int) param.numKeys);
         ETSI004.setVerboseMode(param.verboseMode);
     }
@@ -86,9 +89,13 @@ namespace NORTH {
     IPTunnel IPTunnel_Client{{&response_},{}};
     ETSI004Block ETSI004{{&request, &key},{&response, &key_type}};
 
-    void setup(DvQkdLdpcInputParameters param) {
+    void setup() {
 
-        readKeys.setAsciiFileNameTailNumber(param.cntFirstVal);
+        DvQkdLdpcInputParameters param = DvQkdLdpcInputParameters();
+        param.setInputParametersFileName("input_north.txt");
+        param.readSystemInputParameters();
+
+        readKeys.setAsciiFileNameTailNumber("0");
         if(param.fileType) readKeys.setAsciiFileNameExtension(".b64");
 
         IPTunnel_Server.setLocalMachineIpAddress(param.rxIpAddress);
@@ -103,11 +110,11 @@ namespace NORTH {
 
         dttRxTransmitter.add("KMS_North", 0);
         MessageHandlerRX = MessageHandler{{&request_},{&request}, dttRxTransmitter, FUNCTIONING_AS_RX};
-        ittTxTransmitter.add(0, {"APP", "KMS_North"});
+        ittTxTransmitter.add(0, {"APP_A", "KMS_North"});
         MessageHandlerTX = MessageHandler{{&response},{&response_}, FUNCTIONING_AS_TX, ittTxTransmitter };
 
         ETSI004.setID("Rx");
-        ETSI004.setMode(param.etsiMode);
+        ETSI004.setMode(ETSI004Block::PULL);
         ETSI004.setNumKeys( (unsigned int) param.numKeys);
         ETSI004.setVerboseMode(param.verboseMode);
     }
@@ -115,12 +122,8 @@ namespace NORTH {
 
 int main(){
 
-    DvQkdLdpcInputParameters param = DvQkdLdpcInputParameters();
-    param.setInputParametersFileName("input_parameters_KMS.txt");
-    param.readSystemInputParameters();
-
-    SOUTH::setup(param);
-    NORTH::setup(param);
+    SOUTH::setup();
+    NORTH::setup();
 
     System System_
             {

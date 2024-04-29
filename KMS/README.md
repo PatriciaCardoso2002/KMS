@@ -1,6 +1,6 @@
-## Compiling KMS & KeyProviderServer
+## Compiling KMS, KeyProviderServer & APPA
 
-To compile the KMS and KeyProviderServer, use the following command:
+To compile the KMS, KeyProviderServer and APPA, use the following command:
 
 ```bash
 ./compile_all.sh
@@ -9,6 +9,8 @@ To compile the KMS and KeyProviderServer, use the following command:
 ## Running the program
 
 To run the program you need to run `./kms` and `./key_provider` in distinct terminals.
+To run the app you need to run `./appA` in another terminal. It works just as the key provider but connects to the kms' north interface and requests keys. 
+They can (and should) run all at the same time.
 
 ## Input Parameters
 

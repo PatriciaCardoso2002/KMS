@@ -19,20 +19,22 @@ bool LoadAscii::runBlock(void)
 {
     if (inputSignals[0]->ready()){
         inputSignals[0]->bufferGet(&keyType);
+
+		if (keyType == 0){
+			if (provider == "Tx"){
+				setAsciiFileName("../generated_keys_TX/sym_tx");
+			} else if (provider == "Rx"){
+				setAsciiFileName("../generated_keys_RX/sym_rx");
+			} else {setAsciiFileName("../saved_keys/sym_keys");}
+		} else if (keyType == 1){
+			if (provider == "Tx"){
+				setAsciiFileName("../generated_keys_TX/obl_tx");
+			} else if (provider == "Rx"){
+				setAsciiFileName("../generated_keys_RX/obl_rx");
+			} else {setAsciiFileName("../saved_keys/obl_keys");}
+		} else {std::cout << "Bad key type" << std::endl;}
     }
-    if (keyType == 0){
-        if (provider == "Tx"){
-            setAsciiFileName("../generated_keys_TX/sym_tx");
-        } else if (provider == "Rx"){
-            setAsciiFileName("../generated_keys_RX/sym_rx");
-        } else {std::cout << "Bad provider" << std::endl;}
-    } else if (keyType == 1){
-        if (provider == "Tx"){
-            setAsciiFileName("../generated_keys_TX/obl_tx");
-        } else if (provider == "Rx"){
-            setAsciiFileName("../generated_keys_RX/obl_rx");
-        } else {std::cout << "Bad provider" << std::endl;}
-    } else {std::cout << "Bad key type" << std::endl;}
+    
 
 	t_string asciiFileName_;
 

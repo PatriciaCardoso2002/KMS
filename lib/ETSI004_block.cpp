@@ -182,6 +182,7 @@ bool ETSI004Block::runBlock(void){
                 outputSignals[0]->bufferPut(msgSend);
                 //setTerminated(true);
             }
+            break;
             alive = true;
         } else if (msgCommand == "CLOSE"){
             etsi_qkd_004::Status status = etsi_qkd_004::SUCCESSFUL;

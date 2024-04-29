@@ -82,7 +82,7 @@ private:
 	t_string asciiFileNameExtension{ ".dat" };
 	t_string asciiFileNameTailNumber{ "" };
 	t_integer asciiFileNameTailNumberModulos{ 0 };
-    std::string provider{ "Tx" };
+    std::string provider{ "default" };
     t_binary keyType;
 
 
