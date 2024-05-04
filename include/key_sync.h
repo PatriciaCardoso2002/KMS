@@ -19,15 +19,10 @@ namespace key_sync {
 
     using URI = std::string;
     using UUID = std::string;
-    using KeyBuffer = typename std::vector<unsigned char>;
+    using IndexBuffer = typename std::vector<unsigned char>;
 
     const unsigned int SYMMETRIC = 0;
     const unsigned int OBLIVIOUS = 1;
-
-    struct Metadata {
-        unsigned int size;
-        std::string buffer;
-    };
 
     struct QoS {
         unsigned int key_type;
@@ -41,7 +36,7 @@ namespace key_sync {
     };
 
     //devolve um json para que este seja posteriormente convertido num sinal
-    json key_sync(const URI &source, const URI &destination, const Status status, unsigned int index,const QoS &qos);
+    json key_sync(const URI &source, const URI &destination, const Status status, auto index,const QoS &qos);
 
 }
 
