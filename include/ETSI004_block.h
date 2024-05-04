@@ -3,6 +3,7 @@
 #include "netxpto_20200819.h"
 #include "etsi_qkd_004.h"
 #include "json.hpp"
+#include <unordered_map>
 
 
 class ETSI004Block : public Block {
@@ -84,7 +85,14 @@ public:
     }
 
 private:
+
+struct SessionInfo {
+    unsigned int keyID_Rx;
+    unsigned int keyID_Tx;
+};
+
 std::vector<t_message> receivedMessages = {};
+std::unordered_map<etsi_qkd_004::UUID, SessionInfo> Sessions;
 
 //t_integer keyWriteType{ 0 }; // 0-ASCII , 1-B64
 
@@ -104,8 +112,9 @@ unsigned int keyID_Tx = 0;
 etsi_qkd_004::URI source = "source";
 etsi_qkd_004::URI destination = "destination";
 etsi_qkd_004::QoS qos;
-etsi_qkd_004::UUID key_stream_id = "12345678-1234-1234-1234-123456789012";
+etsi_qkd_004::UUID key_stream_id = "";
 etsi_qkd_004::Metadata metadata_client = {32,"metadata about the key requested"};
 etsi_qkd_004::Metadata metadata_server = {32,"metadata about the key sent"};
+etsi_qkd_004::Status status{ etsi_qkd_004::SUCCESSFUL };
 
 };
