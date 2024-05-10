@@ -1,5 +1,5 @@
 #include "KeySync_Block.h"
-#include "key_sync.h"
+#include "peer_comm.h"
 #include "netxpto_20200819.h"
 
 void KeySyncBlock::initialize(void) {
@@ -33,7 +33,7 @@ bool KeySyncBlock::runBlock(void){
         std::cout << indexes.back() << std::endl;
     }
 
-    t_string msgDataSend = key_sync::key_sync(source,destination,status,indexes,qos).dump();
+    t_string msgDataSend = key_sync::KEY_SYNC(source,destination,status,indexes,qos).dump();
     t_message msgSend;
     msgSend.setMessageData(msgDataSend);
     std::cout << "message" << msgDataSend << std::endl;

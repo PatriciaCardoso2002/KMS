@@ -1,7 +1,7 @@
 #define PROGRAM_KEY_SYNC_BLOCK_H_
 
 #include "netxpto_20200819.h"
-#include "key_sync.h"
+#include "peer_comm.h"
 #include "json.hpp"
 
 
