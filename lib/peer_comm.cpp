@@ -11,11 +11,10 @@ json key_sync::KEY_SYNC(const URI &source, const URI &destination, const Status 
                 {"key_chunk_size", qos.key_chunk_size},
             }
         },
-        },
-        },
         {"status", status},
         {"indexBuffer", indexes},
-
+        },
+        },
     };
     return key_sync_json;
 }

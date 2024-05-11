@@ -138,6 +138,7 @@ namespace KeySync {
     HandlerMessage request_{"sync_request_.sgn",1000,hType,sWriteMode};
     Message response{"sync_response.sgn",1000,hType,sWriteMode};
     HandlerMessage response_{"sync_response_.sgn",1000,hType,sWriteMode};
+    Message index{"south_index.sgn",5,hType,sWriteMode};
 
     DestinationTranslationTable dttRxTransmitter;
     MessageHandler MessageHandlerRX{{&response_},{&response}};
@@ -145,7 +146,7 @@ namespace KeySync {
     MessageHandler MessageHandlerTX{{&request},{&request_}};
     IPTunnel IPTunnel_Client{{&request_},{}};
     IPTunnel IPTunnel_Server{{},{&response_}};
-    KeySyncBlock KeySync{{&response,&SOUTH::index},{&request}};
+    KeySyncBlock KeySync{{&response,&SOUTH::index},{&request, &index}};
 
     void setup(t_string role){
 
