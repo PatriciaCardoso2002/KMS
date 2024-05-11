@@ -16,7 +16,7 @@ namespace key_sync {
 
     using URI = std::string;
     using UUID = std::string;
-    using IndexBuffer = typename std::vector<unsigned int>;
+    using IndexBuffer = typename std::vector<t_string>;
 
     const unsigned int SYMMETRIC = 0;
     const unsigned int OBLIVIOUS = 1;
@@ -38,6 +38,7 @@ namespace key_sync {
     // json with message to be sent to the peer kms to establish the creation of a key to be provided to the app on and by both kms
     json NEW_KEY(const URI &source, const URI &destination, const Status status, const UUID &key_stream_id, IndexBuffer &indexes);
 
+    json SYNC_INDEX(const std::vector<unsigned int> &sync_indexes);
 }
 
 #endif
