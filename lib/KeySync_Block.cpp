@@ -37,23 +37,16 @@ bool KeySyncBlock::runBlock(void){
             }
             //save the received indexes
             key_sync::IndexBuffer r_indexes = msgData["indexBuffer"].get<key_sync::IndexBuffer>();
-            std::cout << "SIZE: " << r_indexes.size();
-            for (int i = 0; i < msgData["indexBuffer"].size(); i++){
-                //if index is not in receivedIndexes
-                if (receivedIndexes.find(msgData["indexBuffer"][i].dump()) == receivedIndexes.end()) //index not found
-                receivedIndexes.insert(msgData["indexBuffer"][i].dump());
-                std::cout << "RECEIVED ID INSERTED: " << msgData["indexBuffer"][i].dump() << std::endl;
+            for (const auto& index : r_indexes) {
+                receivedIndexes.insert(index);
+                std::cout << "RECEIVED ID INSERTED: " << index << std::endl;
             }
-            
         }
     }
-
-    
 
     // check which of the received indexes were already sent
     for (const auto& index : receivedIndexes){
         if (sentIndexes.find(index) != sentIndexes.end()){
-            std::cout << "CARALO" << std::endl;
             sync_indexes.push_back(std::stoul(index));
         }
     }
@@ -72,6 +65,7 @@ bool KeySyncBlock::runBlock(void){
         msgSend.setMessageData(msgDataSend);
         outputSignals[1]->bufferPut(msgSend);
     }
+    std::cout << "OUT" << std::endl;
     
 
    

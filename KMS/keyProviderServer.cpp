@@ -11,11 +11,23 @@
 #include "etsi_qkd_004.h"
 #include "cv_qokd_ldpc_multi_machine_sdf.h"
 
-int main(){
+int main(int argc, char *argv[]){
     
+    if (argc < 2) {
+        std::cerr << "Usage: " << argv[0] << " a/b\n";
+        return 1;
+    }
+
+    std::string role = argv[1];
+
     DvQkdLdpcInputParameters param = DvQkdLdpcInputParameters();
-    param.setInputParametersFileName("input_keyProvider.txt");
-    param.readSystemInputParameters();
+        if(role=="a"){
+            param.setInputParametersFileName("input_keyProviderA.txt");
+            param.readSystemInputParameters();
+        } else if (role=="b"){
+            param.setInputParametersFileName("input_keyProviderB.txt");
+            param.readSystemInputParameters();
+        }
 
     Signal::t_write_mode sWriteMode{ Signal::t_write_mode::Ascii};
     Signal::t_header_type hType{ Signal::t_header_type::fullHeader };
