@@ -3,6 +3,7 @@
 #include "netxpto_20200819.h"
 #include "peer_comm.h"
 #include "json.hpp"
+#include <set>
 
 
 class KeySyncBlock : public Block {
@@ -42,9 +43,10 @@ public:
 private:
     std::vector<t_message> receivedMessages = {};
 
-    std::vector<t_string> receivedIndexes = {};
-
+    std::set<t_string> receivedIndexes = {};
+    std::set<t_string> sentIndexes = {};
     std::vector<t_string> indexes;
+    std::vector<unsigned int> sync_indexes;
     
     t_message m_index;
     t_integer ready;

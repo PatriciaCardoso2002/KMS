@@ -14,10 +14,17 @@ json key_sync::KEY_SYNC(const URI &source, const URI &destination, const Status 
         },
         },
         {"status", status},
-        {"index", indexes},
+        {"indexBuffer", indexes},
 
     };
     return key_sync_json;
+}
+
+json key_sync::SYNC_INDEX(const std::vector<unsigned int> &sync_indexes){
+    json sync_index_json={
+        {"indexes", sync_indexes},
+    };
+    return sync_index_json;
 }
 
 json key_sync::NEW_KEY(const URI &source, const URI &destination, const Status status, const UUID &key_stream_id, IndexBuffer &indexes){
