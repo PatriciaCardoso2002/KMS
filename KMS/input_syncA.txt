@@ -1,0 +1,8 @@
+//------------INPUTPARAMETERS-------------
+//
+//--------SYNC CONFIGURATION-------
+verboseMode=true
+txIpAddress=127.0.0.1
+txReceivingPort=55000
+rxIpAddress=127.0.0.1
+rxReceivingPort=55001

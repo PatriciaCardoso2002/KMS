@@ -14,7 +14,7 @@ numKeys=300
 // Type of keys requested (0 - Symmetric, 1 - Oblivious)
 keyType=1
 // Size of the keys requested (n elements of given type, i.e 50 base64 chars)
-keyChunkSize=50
+keyChunkSize=100
 //
 // NOT USED YET
 maxBps=0

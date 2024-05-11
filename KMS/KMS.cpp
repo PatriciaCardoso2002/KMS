@@ -10,7 +10,7 @@
 #include "ETSI004_block.h"
 #include "etsi_qkd_004.h"
 #include "cv_qokd_ldpc_multi_machine_sdf.h"
-#include "key_sync.h"
+#include "peer_comm.h"
 #include "KeySync_Block.h"
 
 Signal::t_write_mode sWriteMode{ Signal::t_write_mode::Ascii};
@@ -34,14 +34,21 @@ namespace SOUTH {
     IPTunnel IPTunnel_Server{{},{&response_}};
     ETSI004Block ETSI004{{&response},{&request, &key, &index}};
 
-    void setup(){
+    void setup(t_string role){
 
         DvQkdLdpcInputParameters param = DvQkdLdpcInputParameters();
-        param.setInputParametersFileName("input_south.txt");
-        param.readSystemInputParameters();
-
+        if(role=="a"){
+            param.setInputParametersFileName("input_southA.txt");
+            param.readSystemInputParameters();
+            saveKeys.setAsciiFolderName("../saved_keysA");
+        } else if (role=="b") {
+            param.setInputParametersFileName("input_southB.txt");
+            param.readSystemInputParameters();
+            saveKeys.setAsciiFolderName("../saved_keysB");
+        }
+    
         saveKeys.setFile_type(param.fileType);
-        saveKeys.setAsciiFolderName("../saved_keys");
+        
         saveKeys.setAsciiFileName(param.keyType ? "obl_keys" : "sym_keys");
         saveKeys.setAsciiFileNameTailNumber("0");
         saveKeys.setAsciiFileNameTailNumberModulos(0);
@@ -91,11 +98,14 @@ namespace NORTH {
     IPTunnel IPTunnel_Client{{&response_},{}};
     ETSI004Block ETSI004{{&request, &key},{&response, &key_type}};
 
-    void setup() {
+    void setup(t_string role) {
 
         DvQkdLdpcInputParameters param = DvQkdLdpcInputParameters();
-        param.setInputParametersFileName("input_north.txt");
-        param.readSystemInputParameters();
+        if(true){
+            param.setInputParametersFileName("input_north.txt");
+            param.readSystemInputParameters();
+        }
+        
 
         readKeys.setAsciiFileNameTailNumber("0");
         if(param.fileType) readKeys.setAsciiFileNameExtension(".b64");
@@ -137,31 +147,48 @@ namespace KeySync {
     IPTunnel IPTunnel_Server{{},{&response_}};
     KeySyncBlock KeySync{{&response,&SOUTH::index},{&request}};
 
-    void setup(){
+    void setup(t_string role){
 
-        dttRxTransmitter.add("Key_Sync", 0);
+        DvQkdLdpcInputParameters param = DvQkdLdpcInputParameters();
+        if(role=="a"){
+            param.setInputParametersFileName("input_syncA.txt");
+            param.readSystemInputParameters();
+            dttRxTransmitter.add("KMS_A", 0);
+            ittTxTransmitter.add(0, {"KMS_B", "KMS_A"});
+        } else if (role=="b"){
+            param.setInputParametersFileName("input_syncB.txt");
+            param.readSystemInputParameters();
+            dttRxTransmitter.add("KMS_B", 0);
+            ittTxTransmitter.add(0, {"KMS_A", "KMS_B"});
+        }
+
         MessageHandlerRX = MessageHandler{{&response_},{&response}, dttRxTransmitter, FUNCTIONING_AS_RX};
-        ittTxTransmitter.add(0, {"KMS_Peer", "Key_Sync"});
         MessageHandlerTX = MessageHandler{{&request},{&request_}, FUNCTIONING_AS_TX, ittTxTransmitter};
 
         IPTunnel_Client.setLocalMachineIpAddress("127.0.0.1");
         IPTunnel_Client.setRemoteMachineIpAddress("127.0.0.1");
-        IPTunnel_Client.setRemoteMachinePort(54005);
+        IPTunnel_Client.setRemoteMachinePort(param.txReceivingPort);
         IPTunnel_Client.setVerboseMode(true);
 
         IPTunnel_Server.setLocalMachineIpAddress("127.0.0.1");
         IPTunnel_Server.setRemoteMachineIpAddress("127.0.0.1");
-        IPTunnel_Server.setLocalMachinePort(54006);
+        IPTunnel_Server.setLocalMachinePort(param.rxReceivingPort);
         IPTunnel_Server.setVerboseMode(true);
 
     }
 }
 
-int main(){
+int main(int argc, char *argv[]){
+    if (argc < 2) {
+        std::cerr << "Usage: " << argv[0] << " a/b\n";
+        return 1;
+    }
 
-    SOUTH::setup();
-    NORTH::setup();
-    KeySync::setup();
+    std::string role = argv[1];
+
+    SOUTH::setup(role);
+    NORTH::setup(role);
+    KeySync::setup(role);
 
     System System_
             {
@@ -177,12 +204,12 @@ int main(){
                 &KeySync::IPTunnel_Server,
                 &KeySync::MessageHandlerTX,
                 &KeySync::MessageHandlerRX,
-                &NORTH::readKeys,
-                &NORTH::IPTunnel_Server,
-                &NORTH::ETSI004,
-                &NORTH::IPTunnel_Client,
-                &NORTH::MessageHandlerTX,
-                &NORTH::MessageHandlerRX,
+                // &NORTH::readKeys,
+                // &NORTH::IPTunnel_Server,
+                // &NORTH::ETSI004,
+                // &NORTH::IPTunnel_Client,
+                // &NORTH::MessageHandlerTX,
+                // &NORTH::MessageHandlerRX,
                 }
             };
     
