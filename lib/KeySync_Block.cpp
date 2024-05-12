@@ -45,20 +45,11 @@ bool KeySyncBlock::runBlock(void){
             //save the received indexes
             key_sync::IndexBuffer r_indexes = msgData["indexBuffer"].get<key_sync::IndexBuffer>();
             for (const auto& index : r_indexes) {
-                if (std::stoul(index) <= currentIndex){
-                    currentIndexMentioned = true;
-                    std::cout << "CURRENT INDEX MENTIONED: " << index << std::endl;
-                }
-                if (currentIndexMentioned){
-                    // Add the index to the receivedIndexes set
-                    receivedIndexes.insert(index);
-                    std::cout << "RECEIVED ID INSERTED: " << index << std::endl;
-                }
-                else{
-                    std::cout << "RECEIVED ID NOT INSERTED: " << index << std::endl;
-                }
+                receivedIndexes.insert(index);
+                std::cout << "RECEIVED ID INSERTED: " << index << std::endl;
+
             }
-            r_indexes.clear();
+            lastNotifiedIndex = std::stoul(*receivedIndexes.rbegin());
         }
     }
 
@@ -67,28 +58,33 @@ bool KeySyncBlock::runBlock(void){
         if (sentIndexes.find(index) != sentIndexes.end()){
             sync_indexes.push_back(std::stoul(index));
         }
+        if (std::stoul(index) == currentIndex){
+            currentIndexMentioned = true;
+        }
     }
 
-    
     if(!sync_indexes.empty()){
-        if (sync_indexes != prev_sync_indexes) {
-            // There are new indexes in sync_indexes
-            std::cout << "GOING TO SEND SYNC INDEX" << std::endl;
-            // send signal to database to set sync true
-            t_string msgDataSend = key_sync::SYNC_INDEX(sync_indexes).dump();
+        // There are new indexes in sync_indexes
+        std::cout << "GOING TO SEND SYNC INDEX" << std::endl;
+        // send signal to database to set sync true
+        t_string msgDataSend = key_sync::SYNC_INDEX(sync_indexes).dump();
+        t_message msgSend;
+        msgSend.setMessageData(msgDataSend);
+        outputSignals[1]->bufferPut(msgSend);
+        
+        sync_indexes.clear();
+    }
+    
+    // check if the last index was mentioned in the received indexes  
+    if (!receivedIndexes.empty()){ 
+        if (!currentIndexMentioned && lastNotifiedIndex > currentIndex){
+            t_string msgDataSend = std::to_string(currentIndex);
             t_message msgSend;
             msgSend.setMessageData(msgDataSend);
             outputSignals[1]->bufferPut(msgSend);
-
-            // Update prev_sync_indexes with the current state of sync_indexes
-            prev_sync_indexes = sync_indexes;
         }
     }
-    std::cout << "OUT" << std::endl;
     
-
-   
-
     // send message to peer
     if (indexes.size() == 10){
         key_sync::Status status = key_sync::Status::SUCCESSFUL;

@@ -50,7 +50,6 @@ private:
     std::vector<unsigned int> prev_sync_indexes;
 
     unsigned int lastNotifiedIndex;
-    unsigned int currentIndexMentioned;
     unsigned int currentIndex;
 
     t_message m_index;
