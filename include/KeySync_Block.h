@@ -47,7 +47,11 @@ private:
     std::set<t_string> sentIndexes = {};
     std::vector<t_string> indexes;
     std::vector<unsigned int> sync_indexes;
-    
+    std::vector<unsigned int> prev_sync_indexes;
+
+    unsigned int lastNotifiedIndex;
+    unsigned int currentIndex;
+
     t_message m_index;
     t_integer ready;
 

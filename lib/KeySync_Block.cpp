@@ -20,7 +20,13 @@ bool KeySyncBlock::runBlock(void){
         indexes.push_back(m_index.getMessageData());
         std::cout << "Index: ";
         std::cout << indexes.back() << std::endl;
+
+        // Update currentIndex with the last index received
+        currentIndex = std::stoul(indexes.back());
+        std::cout << "currentIndex: " << currentIndex << std::endl;
     }
+
+    bool currentIndexMentioned = false;
 
     // check peer message
     if (inputSignals[0]->ready()){
@@ -31,6 +37,7 @@ bool KeySyncBlock::runBlock(void){
         msgCommand = msgJson["command"];
         msgData = msgJson["data"];
 
+
         if (msgCommand == "KEY_SYNC"){
             if(getVerboseMode()){
                 std::cout << "RECEIVED KEY_SYNC" << std::endl;
@@ -40,7 +47,9 @@ bool KeySyncBlock::runBlock(void){
             for (const auto& index : r_indexes) {
                 receivedIndexes.insert(index);
                 std::cout << "RECEIVED ID INSERTED: " << index << std::endl;
+
             }
+            lastNotifiedIndex = std::stoul(*receivedIndexes.rbegin());
         }
     }
 
@@ -49,27 +58,33 @@ bool KeySyncBlock::runBlock(void){
         if (sentIndexes.find(index) != sentIndexes.end()){
             sync_indexes.push_back(std::stoul(index));
         }
+        if (std::stoul(index) == currentIndex){
+            currentIndexMentioned = true;
+        }
     }
 
-    
     if(!sync_indexes.empty()){
-        std::cout << "Sync indexes: ";
-        for (const auto& index : sync_indexes) {
-        std::cout << index << ' ';
-        }
-        std::cout << '\n';
-
-         // send signal to database to set sync true
+        // There are new indexes in sync_indexes
+        std::cout << "GOING TO SEND SYNC INDEX" << std::endl;
+        // send signal to database to set sync true
         t_string msgDataSend = key_sync::SYNC_INDEX(sync_indexes).dump();
         t_message msgSend;
         msgSend.setMessageData(msgDataSend);
         outputSignals[1]->bufferPut(msgSend);
+        
+        sync_indexes.clear();
     }
-    std::cout << "OUT" << std::endl;
     
-
-   
-
+    // check if the last index was mentioned in the received indexes  
+    if (!receivedIndexes.empty()){ 
+        if (!currentIndexMentioned && lastNotifiedIndex > currentIndex){
+            t_string msgDataSend = std::to_string(currentIndex);
+            t_message msgSend;
+            msgSend.setMessageData(msgDataSend);
+            outputSignals[1]->bufferPut(msgSend);
+        }
+    }
+    
     // send message to peer
     if (indexes.size() == 10){
         key_sync::Status status = key_sync::Status::SUCCESSFUL;
