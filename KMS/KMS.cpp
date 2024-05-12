@@ -4,7 +4,7 @@
 #include <iostream>
 #include <memory>
 #include "message_handler.h"
-#include "save_ascii_2024.h"
+#include "save_db.h"
 #include "ms_windows_console_output_common_20200819.h"
 #include "ip_tunnel_ms_windows_20200819.h"
 #include "ETSI004_block.h"
@@ -25,7 +25,7 @@ namespace SOUTH {
     Binary key{"south_key.sgn",1024,hType,sWriteMode};
     Message index{"south_index.sgn",5,hType,sWriteMode};
 
-    SaveAscii saveKeys{{&key, &index},{}};
+    SaveDB saveKeys{{&key, &index, &KeySync::index},{}};
     DestinationTranslationTable dttRxTransmitter;
     MessageHandler MessageHandlerRX{{&response_},{&response}};
     InputTranslationTable ittTxTransmitter;
@@ -40,20 +40,19 @@ namespace SOUTH {
         if(role=="a"){
             param.setInputParametersFileName("input_southA.txt");
             param.readSystemInputParameters();
-            saveKeys.setAsciiFolderName("../saved_keysA");
         } else if (role=="b") {
             param.setInputParametersFileName("input_southB.txt");
             param.readSystemInputParameters();
-            saveKeys.setAsciiFolderName("../saved_keysB");
         }
-    
-        saveKeys.setFile_type(param.fileType);
+
+        saveKeys.setSaveType(param.fileType);
+        saveKeys.setKeyType(param.keyType);
         
-        saveKeys.setAsciiFileName(param.keyType ? "obl_keys" : "sym_keys");
-        saveKeys.setAsciiFileNameTailNumber("0");
-        saveKeys.setAsciiFileNameTailNumberModulos(0);
-        saveKeys.setInsertId(true);
-        if(param.fileType) saveKeys.setAsciiFileNameExtension("b64");
+        // saveKeys.setAsciiFileName(param.keyType ? "obl_keys" : "sym_keys");
+        // saveKeys.setAsciiFileNameTailNumber("0");
+        // saveKeys.setAsciiFileNameTailNumberModulos(0);
+        // saveKeys.setInsertId(true);
+        // if(param.fileType) saveKeys.setAsciiFileNameExtension("b64");
 
         dttRxTransmitter.add("KMS_South", 0);
         MessageHandlerRX = MessageHandler{{&response_},{&response}, dttRxTransmitter, FUNCTIONING_AS_RX};
