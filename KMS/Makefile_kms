@@ -18,7 +18,7 @@ OBJ = $(patsubst %,$(OBJDIR)/%,$(_OBJ))
 $(OBJDIR)/%.o: $(LDIR)/%.cpp $(_DEPS) 
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(OBJDIR)/kms.o: KMS.cpp cv_qokd_ldpc_multi_machine_sdf.h
+$(OBJDIR)/kms.o: KMS.cpp cv_qokd_ldpc_multi_machine_sdf.h KMS.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
 kms: $(OBJ) 

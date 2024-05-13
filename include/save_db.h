@@ -36,7 +36,11 @@ public:
     };
     void setKeyType(unsigned int keyType){
         kType = keyType;
-    }; 
+    };
+
+    void setIPDB(std::string ip){
+        IP = ip;
+    };  
 
     void setSaveType(int type){
         saveType = type;
@@ -50,8 +54,10 @@ private:
     sql::Connection* connection;
     sql::Statement* stmt;
     sql::ResultSet* res;
+    std::string IP;
     unsigned int kType{0}; // 0-SYMMETRIC, 1-OBLIVIOUS
     int saveType{0}; // 0-ASCII, 1-B64
+    int part_size{32};  // Set the size of each part of key_material
 };
 
 #endif //SAVE_DB_H

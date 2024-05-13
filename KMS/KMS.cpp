@@ -12,18 +12,12 @@
 #include "cv_qokd_ldpc_multi_machine_sdf.h"
 #include "peer_comm.h"
 #include "KeySync_Block.h"
+#include "KMS.h"
 
-Signal::t_write_mode sWriteMode{ Signal::t_write_mode::Ascii};
-Signal::t_header_type hType{ Signal::t_header_type::fullHeader };
+// Signal::t_write_mode sWriteMode{ Signal::t_write_mode::Ascii};
+// Signal::t_header_type hType{ Signal::t_header_type::fullHeader };
 
 namespace SOUTH {
-
-    Message request{"south_request.sgn",1000,hType,sWriteMode};
-    HandlerMessage request_{"south_request_.sgn",1000,hType,sWriteMode};
-    Message response{"south_response.sgn",1000,hType,sWriteMode};
-    HandlerMessage response_{"south_response_.sgn",1000,hType,sWriteMode};
-    Binary key{"south_key.sgn",1024,hType,sWriteMode};
-    Message index{"south_index.sgn",5,hType,sWriteMode};
 
     SaveDB saveKeys{{&key, &index, &KeySync::index},{}};
     DestinationTranslationTable dttRxTransmitter;
@@ -40,13 +34,16 @@ namespace SOUTH {
         if(role=="a"){
             param.setInputParametersFileName("input_southA.txt");
             param.readSystemInputParameters();
+            saveKeys.setIPDB("172.17.0.2");
         } else if (role=="b") {
             param.setInputParametersFileName("input_southB.txt");
             param.readSystemInputParameters();
+            saveKeys.setIPDB("172.17.0.3");
         }
 
         saveKeys.setSaveType(param.fileType);
         saveKeys.setKeyType(param.keyType);
+        
         
         // saveKeys.setAsciiFileName(param.keyType ? "obl_keys" : "sym_keys");
         // saveKeys.setAsciiFileNameTailNumber("0");
@@ -80,13 +77,6 @@ namespace SOUTH {
 }
 
 namespace NORTH {
-
-    Message request{"north_request.sgn",10,hType,sWriteMode};
-    HandlerMessage request_{"north_request_.sgn",10,hType,sWriteMode};
-    Message response{"north_response.sgn",10,hType,sWriteMode};
-    HandlerMessage response_{"north_response_.sgn",10,hType,sWriteMode};
-    Binary key{"north_key.sgn",1024,hType,sWriteMode};
-    Binary key_type{"north_key_type.sgn",5,hType,sWriteMode};
 
     LoadAscii readKeys({&key_type},{&key}); // precisa de ser alterado para ter em conta nome dos ficheiros criados pelo kms e index, etc..
     IPTunnel IPTunnel_Server{{},{&request_}};
@@ -133,19 +123,13 @@ namespace NORTH {
 
 namespace KeySync {
 
-    Message request{"sync_request.sgn",1000,hType,sWriteMode};
-    HandlerMessage request_{"sync_request_.sgn",1000,hType,sWriteMode};
-    Message response{"sync_response.sgn",1000,hType,sWriteMode};
-    HandlerMessage response_{"sync_response_.sgn",1000,hType,sWriteMode};
-    Message index{"south_index.sgn",5,hType,sWriteMode};
-
     DestinationTranslationTable dttRxTransmitter;
     MessageHandler MessageHandlerRX{{&response_},{&response}};
     InputTranslationTable ittTxTransmitter;
     MessageHandler MessageHandlerTX{{&request},{&request_}};
     IPTunnel IPTunnel_Client{{&request_},{}};
     IPTunnel IPTunnel_Server{{},{&response_}};
-    KeySyncBlock KeySync{{&response,&SOUTH::index},{&request, &index}};
+    KeySyncBlock KeySync{{&response,&SOUTH::index},{&request, &index, &discardIndex}};
 
     void setup(t_string role){
 
