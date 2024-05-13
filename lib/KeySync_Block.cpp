@@ -9,6 +9,8 @@ void KeySyncBlock::initialize(void) {
 bool KeySyncBlock::runBlock(void){
     
     bool alive = true;
+    bool currentIndexMentioned = false;
+    std::set<unsigned int> indexesToErase;
     if (getTerminated()) return false;
 
     std::cout << "KeySyncBlock running\n";
@@ -18,15 +20,10 @@ bool KeySyncBlock::runBlock(void){
     if (ready){
         inputSignals[1]->bufferRead(&m_index);
         indexes.push_back(m_index.getMessageData());
-        std::cout << "Index: ";
-        std::cout << indexes.back() << std::endl;
 
-        // Update currentIndex with the last index received
+        // Update currentIndex
         currentIndex = std::stoul(indexes.back());
-        std::cout << "currentIndex: " << currentIndex << std::endl;
     }
-
-    bool currentIndexMentioned = false;
 
     // check peer message
     if (inputSignals[0]->ready()){
@@ -37,7 +34,6 @@ bool KeySyncBlock::runBlock(void){
         msgCommand = msgJson["command"];
         msgData = msgJson["data"];
 
-
         if (msgCommand == "KEY_SYNC"){
             if(getVerboseMode()){
                 std::cout << "RECEIVED KEY_SYNC" << std::endl;
@@ -46,45 +42,39 @@ bool KeySyncBlock::runBlock(void){
             key_sync::IndexBuffer r_indexes = msgData["indexBuffer"].get<key_sync::IndexBuffer>();
             for (const auto& index : r_indexes) {
                 receivedIndexes.insert(index);
-                std::cout << "RECEIVED ID INSERTED: " << index << std::endl;
-
+                r_IndexesInt.insert(std::stoul(index));
+                lastReceivedIndex = std::stoul(index);
             }
-            lastNotifiedIndex = std::stoul(*receivedIndexes.rbegin());
-        }
-    }
 
-    // check which of the received indexes were already sent
-    for (const auto& index : receivedIndexes){
-        if (sentIndexes.find(index) != sentIndexes.end()){
-            sync_indexes.push_back(std::stoul(index));
-        }
-        if (std::stoul(index) == currentIndex){
-            currentIndexMentioned = true;
-        }
-    }
+            // check if there are missing indexes
+            auto it = r_IndexesInt.begin();
+            auto next_it = std::next(it);
 
-    if(!sync_indexes.empty()){
-        // There are new indexes in sync_indexes
-        std::cout << "GOING TO SEND SYNC INDEX" << std::endl;
-        // send signal to database to set sync true
-        t_string msgDataSend = key_sync::SYNC_INDEX(sync_indexes).dump();
-        t_message msgSend;
-        msgSend.setMessageData(msgDataSend);
-        outputSignals[1]->bufferPut(msgSend);
+            while (next_it != r_IndexesInt.end()) { 
+                int dif = *next_it - *it;
+                if (dif != 1) {
+                    for (int i = 1; i < dif; i++)
+                    {
+                        unsigned int discardedIndex = *it + i;
+                        NotFoundIndexes.insert(discardedIndex);
+                        std::cout << "INDEX NOT FOUND: " << discardedIndex << std::endl;
+                    }
+                    
+                }
+                it = next_it;
+                ++next_it;
+            }
+
+        }
         
-        sync_indexes.clear();
-    }
-    
-    // check if the last index was mentioned in the received indexes  
-    if (!receivedIndexes.empty()){ 
-        if (!currentIndexMentioned && lastNotifiedIndex > currentIndex){
-            t_string msgDataSend = std::to_string(currentIndex);
-            t_message msgSend;
-            msgSend.setMessageData(msgDataSend);
-            outputSignals[1]->bufferPut(msgSend);
+        // check which of the received indexes were already sent
+        for (const auto& index : receivedIndexes){
+            if (sentIndexes.find(index) != sentIndexes.end()){
+                sync_indexes.push_back(std::stoul(index));
+            }
         }
     }
-    
+
     // send message to peer
     if (indexes.size() == 10){
         key_sync::Status status = key_sync::Status::SUCCESSFUL;
@@ -92,12 +82,60 @@ bool KeySyncBlock::runBlock(void){
         t_string msgDataSend = key_sync::KEY_SYNC(source,destination,status,indexes,qos).dump();
         t_message msgSend;
         msgSend.setMessageData(msgDataSend);
-        std::cout << "message" << msgDataSend << std::endl;
         outputSignals[0]->bufferPut(msgSend);
         sentIndexes.insert(indexes.begin(), indexes.end());
         indexes.clear();
+        std::cout << "SYNC TO PEER: " << msgDataSend << std::endl;
     }
+
+    // send signal to database to set sync true
+    if(!sync_indexes.empty()){
+        t_string msgDataSend = key_sync::SYNC_INDEX(sync_indexes).dump();
+        t_message msgSend;
+        msgSend.setMessageData(msgDataSend);
+        outputSignals[1]->bufferPut(msgSend);
+        sync_indexes.clear();
+        std::cout << "SIGNAL TO SYNC DATABASE: " << msgDataSend << std::endl;
+    }
+
+    // check which of the indexes to discard exist in the KMS
+    for (const auto& index : NotFoundIndexes){
+        if (sentIndexes.find(std::to_string(index)) == sentIndexes.end()){
+            indexesToErase.insert(index);
+        }
+    }
+    // erase indexes that dont exist in the KMS
+    for (const auto& index : indexesToErase) {
+        NotFoundIndexes.erase(index);
+    }
+
+    
+    for (const auto& index : NotFoundIndexes){
+        discardIndexes.push_back(index);
+    }
+
+    // send message to database to discard indexes
+    t_string msgDataSend = key_sync::DISCARD(discardIndexes).dump();
+    t_message msgSend;
+    msgSend.setMessageData(msgDataSend);
+    outputSignals[2]->bufferPut(msgSend);
+    std::cout << "SIGNAL TO DISCARD INDEXES DATABASE: " << msgDataSend << std::endl;
+    discardIndexes.clear();
 
     return alive;
 
 }
+
+//////////////////////////// NOT USED //////////////////////////////////////
+
+
+/*     // check if the last index was mentioned in the received indexes  
+    if (!receivedIndexes.empty()){ 
+        if (!currentIndexMentioned && lastReceivedIndex > currentIndex){
+            std::cout << "DISCARDED INDEX: " << currentIndex << std::endl;
+            t_string msgDataSend = std::to_string(currentIndex);
+            t_message msgSend;
+            msgSend.setMessageData(msgDataSend);
+            outputSignals[2]->bufferPut(msgSend);
+        }
+    } */

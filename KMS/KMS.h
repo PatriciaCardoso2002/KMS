@@ -33,8 +33,8 @@ namespace KeySync {
     HandlerMessage request_{"sync_request_.sgn",1000,hType,sWriteMode};
     Message response{"sync_response.sgn",1000,hType,sWriteMode};
     HandlerMessage response_{"sync_response_.sgn",1000,hType,sWriteMode};
-    Message index{"south_index.sgn",5,hType,sWriteMode};
-    Message discardIndex{"discard_index.sgn",5,hType,sWriteMode};
+    Message index{"sync_index.sgn",5,hType,sWriteMode};
+    Message discardIndex{"sync_discard_index.sgn",5,hType,sWriteMode};
 
 }
 

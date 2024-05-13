@@ -7,7 +7,7 @@ txReceivingPort=54100
 rxIpAddress=127.0.0.1
 rxReceivingPort=54101
 //---------ETSI CONFIGURATION---------
-numKeys=3000
+numKeys=605
 etsiSource=KMS
 etsiDest=KeyProvider
 // 0 - Symmetric, 1 - Oblivious

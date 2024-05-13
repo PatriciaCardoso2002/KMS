@@ -65,6 +65,18 @@ bool SaveDB::runBlock(void){
                 }
             }
 
+            // check if there are indexes to discard
+            if(inputSignals[3]->ready()){
+                t_message discard;
+                inputSignals[3]->bufferGet(&discard);
+                json discard_json = json::parse(discard.getMessageData());
+                std::vector<unsigned int> discard_indexes = discard_json["indexes"].get<std::vector<unsigned int>>();
+                for (unsigned int seq : discard_indexes) {
+                    std::string query = "DELETE FROM raw_key_store_symmetric WHERE seq = " + std::to_string(seq);
+                    stmt->execute(query);
+                }
+            }
+
             // res = stmt->executeQuery("SELECT * FROM raw_key_store_symmetric");
             // while (res->next()) {
             //     // Access data
@@ -123,6 +135,18 @@ bool SaveDB::runBlock(void){
                 std::vector<unsigned int> sync_indexes = sync_json["indexes"].get<std::vector<unsigned int>>();
                 for (unsigned int seq : sync_indexes) {
                     std::string query = "UPDATE raw_key_store_oblivious SET sync = 1 WHERE seq = " + std::to_string(seq);
+                    stmt->execute(query);
+                }
+            }
+
+            // check if there are indexes to discard
+            if(inputSignals[3]->ready()){
+                t_message discard;
+                inputSignals[3]->bufferGet(&discard);
+                json discard_json = json::parse(discard.getMessageData());
+                std::vector<unsigned int> discard_indexes = discard_json["indexes"].get<std::vector<unsigned int>>();
+                for (unsigned int seq : discard_indexes) {
+                    std::string query = "DELETE FROM raw_key_store_oblivious WHERE seq = " + std::to_string(seq);
                     stmt->execute(query);
                 }
             }

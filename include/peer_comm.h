@@ -38,7 +38,12 @@ namespace key_sync {
     // json with message to be sent to the peer kms to establish the creation of a key to be provided to the app on and by both kms
     json NEW_KEY(const URI &source, const URI &destination, const Status status, const UUID &key_stream_id, IndexBuffer &indexes);
 
-    json SYNC_INDEX(const std::vector<unsigned int> &sync_indexes);
+    json SYNC_INDEX(const std::vector<unsigned int> &sync_indexes);    
+    
+    json DISCARD(const std::vector<unsigned int> &sync_indexes);
+
+
+
 }
 
 #endif

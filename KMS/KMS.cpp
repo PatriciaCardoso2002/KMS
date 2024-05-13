@@ -19,7 +19,7 @@
 
 namespace SOUTH {
 
-    SaveDB saveKeys{{&key, &index, &KeySync::index},{}};
+    SaveDB saveKeys{{&key, &index, &KeySync::index, &KeySync::discardIndex},{}};
     DestinationTranslationTable dttRxTransmitter;
     MessageHandler MessageHandlerRX{{&response_},{&response}};
     InputTranslationTable ittTxTransmitter;
@@ -169,7 +169,7 @@ int main(int argc, char *argv[]){
     }
 
     std::string role = argv[1];
-
+    
     SOUTH::setup(role);
     NORTH::setup(role);
     KeySync::setup(role);
@@ -196,6 +196,11 @@ int main(int argc, char *argv[]){
                 // &NORTH::MessageHandlerRX,
                 }
             };
+
+    if (role == "a"){
+        System_.setSignalsFolderName("SignalsA");
+    } else {System_.setSignalsFolderName("SignalsB");}
+
     
     System_.run();
     System_.terminate();

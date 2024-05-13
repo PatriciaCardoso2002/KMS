@@ -21,13 +21,13 @@ int main(int argc, char *argv[]){
     std::string role = argv[1];
 
     DvQkdLdpcInputParameters param = DvQkdLdpcInputParameters();
-        if(role=="a"){
-            param.setInputParametersFileName("input_keyProviderA.txt");
-            param.readSystemInputParameters();
-        } else if (role=="b"){
-            param.setInputParametersFileName("input_keyProviderB.txt");
-            param.readSystemInputParameters();
-        }
+    if(role=="a"){
+        param.setInputParametersFileName("input_keyProviderA.txt");
+        param.readSystemInputParameters();
+    } else if (role=="b"){
+        param.setInputParametersFileName("input_keyProviderB.txt");
+        param.readSystemInputParameters();
+    }
 
     Signal::t_write_mode sWriteMode{ Signal::t_write_mode::Ascii};
     Signal::t_header_type hType{ Signal::t_header_type::fullHeader };
