@@ -13,6 +13,7 @@
 #include "peer_comm.h"
 #include "KeySync_Block.h"
 #include "KMS.h"
+#include "ETSI004_north.h"
 
 // Signal::t_write_mode sWriteMode{ Signal::t_write_mode::Ascii};
 // Signal::t_header_type hType{ Signal::t_header_type::fullHeader };
@@ -85,7 +86,7 @@ namespace NORTH {
     InputTranslationTable ittTxTransmitter;
     MessageHandler MessageHandlerTX{{&response},{&response_}};
     IPTunnel IPTunnel_Client{{&response_},{}};
-    ETSI004Block ETSI004{{&request, &key},{&response, &key_type}};
+    ETSI004North ETSI004{{&request, &key},{&response, &session_info}};
 
     void setup(t_string role) {
 
@@ -114,9 +115,6 @@ namespace NORTH {
         ittTxTransmitter.add(0, {"APP_A", "KMS_North"});
         MessageHandlerTX = MessageHandler{{&response},{&response_}, FUNCTIONING_AS_TX, ittTxTransmitter };
 
-        ETSI004.setID("Rx");
-        ETSI004.setMode(ETSI004Block::PULL);
-        ETSI004.setNumKeys( (unsigned int) param.numKeys);
         ETSI004.setVerboseMode(param.verboseMode);
     }
 }
@@ -129,7 +127,7 @@ namespace KeySync {
     MessageHandler MessageHandlerTX{{&request},{&request_}};
     IPTunnel IPTunnel_Client{{&request_},{}};
     IPTunnel IPTunnel_Server{{},{&response_}};
-    KeySyncBlock KeySync{{&response,&SOUTH::index},{&request, &index, &discardIndex}};
+    KeySyncBlock KeySync{{&response,&SOUTH::index,&NORTH::new_key},{&request, &index, &discardIndex, &new_key_ack}};
 
     void setup(t_string role){
 

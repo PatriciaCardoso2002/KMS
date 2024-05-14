@@ -25,6 +25,13 @@ bool KeySyncBlock::runBlock(void){
         currentIndex = std::stoul(indexes.back());
     }
 
+    if (inputSignals[2]->ready()){
+        // send new_key to peer
+        t_message north_new_key;
+        inputSignals[2]->bufferGet(&north_new_key);
+        outputSignals[0]->bufferPut(&north_new_key);
+    }
+
     // check peer message
     if (inputSignals[0]->ready()){
         t_message msgReceived;
@@ -65,8 +72,11 @@ bool KeySyncBlock::runBlock(void){
                 ++next_it;
             }
 
-        }
-        
+        } else if (msgCommand == "NEW_KEY" || msgCommand == "NEW_KEY_ACK"){
+            // send new_key/new_key_ack to north
+            outputSignals[3]->bufferPut(msgReceived);
+        } 
+
         // check which of the received indexes were already sent
         for (const auto& index : receivedIndexes){
             if (sentIndexes.find(index) != sentIndexes.end()){

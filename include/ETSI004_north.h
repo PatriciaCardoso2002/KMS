@@ -1,34 +1,20 @@
-# define PROGRAM_ETSI004_BLOCK_H_
+# define PROGRAM_ETSI004_NORTH_H_
 
 #include "netxpto_20200819.h"
 #include "etsi_qkd_004.h"
+#include "peer_comm.h"
 #include "json.hpp"
 #include <unordered_map>
 
 
-class ETSI004Block : public Block {
+class ETSI004North : public Block {
 
 public:
 
-    ETSI004Block(std::initializer_list<Signal *> InputSig, std::initializer_list<Signal *> OutputSig) :Block(InputSig, OutputSig) {};
+    ETSI004North(std::initializer_list<Signal *> InputSig, std::initializer_list<Signal *> OutputSig) :Block(InputSig, OutputSig) {};
 
     void initialize(void);
     bool runBlock(void);
-
-    static const unsigned int PUSH = 0;
-    static const unsigned int PULL = 1;
-
-    void setID(t_string Id){ID = Id;};
-    t_string getID(){return ID;};
-
-    void setMode(unsigned int Mode){mode = Mode;};
-    unsigned int getMode(){return mode;};
-
-    void setNumKeys(unsigned int NumKeys){num_keys = NumKeys;}
-    unsigned int getNumKeys(){return num_keys;}
-
-    // void setKeyWriteType(t_integer option) { keyWriteType = option;}
-    // t_integer getKeyWriteType(void) { return keyWriteType;}
 
     void setQoS(unsigned int key_type = 0, unsigned int key_chunk_size = 0, unsigned int max_bps = 0, unsigned int min_bps = 0, unsigned int jitter = 0, unsigned int priority = 0, unsigned int timeout = 0, unsigned int ttl = 0, std::string metadata_mimetype = "JSON"){        
         this->qos.key_type = key_type;
@@ -86,30 +72,25 @@ public:
 
 private:
 
+bool waitingKey{ false };
+
+etsi_qkd_004::UUID KSID;
+
 struct SessionInfo {
-    unsigned int keyID_Rx;
-    unsigned int keyID_Tx;
+    unsigned int msg_index;
     unsigned int key_type;
     unsigned int key_chunk_size;
+    std::string status;
 };
 
 std::vector<t_message> receivedMessages = {};
 std::unordered_map<etsi_qkd_004::UUID, SessionInfo> Sessions;
 
-//t_integer keyWriteType{ 0 }; // 0-ASCII , 1-B64
-
-unsigned int mode{0};
-t_string ID;
-t_integer ready;
 t_integer i = 0;
 
 json msgJson;
 json msgCommand;
 json msgData;
-
-unsigned int num_keys = 50;
-unsigned int keyID_Rx = 0;
-unsigned int keyID_Tx = 0;
 
 etsi_qkd_004::URI source = "source";
 etsi_qkd_004::URI destination = "destination";
