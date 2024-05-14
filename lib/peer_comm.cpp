@@ -20,13 +20,14 @@ json key_sync::KEY_SYNC(const URI &source, const URI &destination, const Status 
     return key_sync_json;
 }
 
-json key_sync::NEW_KEY(const URI &source, const URI &destination, const UUID &key_stream_id, const QoS &qos, const std::map<int,std::vector<int>> &indexes){
+json key_sync::NEW_KEY(const URI &source, const URI &destination, const UUID &key_stream_id,const unsigned int &id, const QoS &qos, const std::map<int,std::vector<int>> &indexes){
     json new_key_json={
         {"command", "NEW_KEY"},
         {"data", {
             {"source", source},
             {"destination", destination},
             {"key_stream_id", key_stream_id},
+            {"id", id},
             {"qos", {
                     {"key_type", qos.key_type},
                     {"key_chunk_size", qos.key_chunk_size},
@@ -66,9 +67,10 @@ json key_sync::DISCARD(const std::vector<unsigned int> &sync_indexes){
     return sync_index_json;
 }
 
-json key_sync::SESSION(const UUID &key_stream_id, const unsigned int &keyType, const unsigned int &key_chunk_size){
+json key_sync::SESSION(const UUID &key_stream_id,const unsigned int &msg_index, const unsigned int &keyType, const unsigned int &key_chunk_size){
     json session_json={
         {"key_stream_id", key_stream_id},
+        {"msg_index", msg_index },
         {"key_type", keyType},
         {"key_chunk_size", key_chunk_size},
     };

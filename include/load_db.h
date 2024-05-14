@@ -35,20 +35,6 @@ public:
             std::cerr << "SQLException: " << e.what() << std::endl;
         }
     };
-    void setKeyType(unsigned int keyType){
-        kType = keyType;
-    };
-
-    void setIPDB(std::string ip){
-        IP = ip;
-    };  
-
-    void setSaveType(int type){
-        saveType = type;
-    }
-    int getSaveType(){
-        return saveType;
-    }
 
 private:
     sql::Driver* driver;
@@ -57,10 +43,23 @@ private:
     sql::ResultSet* res;
     std::string IP;
 
+    struct NEW_KEY_SENT{
+        unsigned int key_type;
+        unsigned int key_chunk_size;
+        std::map<int,std::vector<int>> indexes;
+    };
+    std::map<key_sync::UUID,std::vector<NEW_KEY_SENT>> SentMessages;
+    
+    key_sync::UUID key_stream_id;
+    
+    t_string msgDataSend;
+    t_message msgSend;
 
-    t_string key_stream_id;
-    unsigned int keyType;
-    unsigned int key_chunk_size;
+    json msgData;
+    json msgCommand;
+    unsigned int msg_index;
+    
+    key_sync::QoS qos;
 
     json sessionInfoJson;
 
