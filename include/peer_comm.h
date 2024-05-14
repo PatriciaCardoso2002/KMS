@@ -42,6 +42,9 @@ namespace key_sync {
     
     json DISCARD(const std::vector<unsigned int> &sync_indexes);
 
+    json SESSION(const UUID &key_stream_id, const unsigned int &keyType, const unsigned int &key_chunk_size);
+
+    json NEW_KEY_ACK(const URI &source, const URI &destination, const UUID &key_stream_id);
 
 
 }

@@ -4,7 +4,7 @@
 #include <iostream>
 #include <memory>
 #include "message_handler.h"
-#include "save_ascii_2024.h"
+#include "save_db.h"
 #include "ms_windows_console_output_common_20200819.h"
 #include "ip_tunnel_ms_windows_20200819.h"
 #include "ETSI004_block.h"
@@ -12,20 +12,14 @@
 #include "cv_qokd_ldpc_multi_machine_sdf.h"
 #include "peer_comm.h"
 #include "KeySync_Block.h"
+#include "KMS.h"
 
-Signal::t_write_mode sWriteMode{ Signal::t_write_mode::Ascii};
-Signal::t_header_type hType{ Signal::t_header_type::fullHeader };
+// Signal::t_write_mode sWriteMode{ Signal::t_write_mode::Ascii};
+// Signal::t_header_type hType{ Signal::t_header_type::fullHeader };
 
 namespace SOUTH {
 
-    Message request{"south_request.sgn",1000,hType,sWriteMode};
-    HandlerMessage request_{"south_request_.sgn",1000,hType,sWriteMode};
-    Message response{"south_response.sgn",1000,hType,sWriteMode};
-    HandlerMessage response_{"south_response_.sgn",1000,hType,sWriteMode};
-    Binary key{"south_key.sgn",1024,hType,sWriteMode};
-    Message index{"south_index.sgn",5,hType,sWriteMode};
-
-    SaveAscii saveKeys{{&key, &index},{}};
+    SaveDB saveKeys{{&key, &index, &KeySync::index, &KeySync::discardIndex},{}};
     DestinationTranslationTable dttRxTransmitter;
     MessageHandler MessageHandlerRX{{&response_},{&response}};
     InputTranslationTable ittTxTransmitter;
@@ -40,20 +34,22 @@ namespace SOUTH {
         if(role=="a"){
             param.setInputParametersFileName("input_southA.txt");
             param.readSystemInputParameters();
-            saveKeys.setAsciiFolderName("../saved_keysA");
+            saveKeys.setIPDB("172.17.0.2");
         } else if (role=="b") {
             param.setInputParametersFileName("input_southB.txt");
             param.readSystemInputParameters();
-            saveKeys.setAsciiFolderName("../saved_keysB");
+            saveKeys.setIPDB("172.17.0.3");
         }
-    
-        saveKeys.setFile_type(param.fileType);
+
+        saveKeys.setSaveType(param.fileType);
+        saveKeys.setKeyType(param.keyType);
         
-        saveKeys.setAsciiFileName(param.keyType ? "obl_keys" : "sym_keys");
-        saveKeys.setAsciiFileNameTailNumber("0");
-        saveKeys.setAsciiFileNameTailNumberModulos(0);
-        saveKeys.setInsertId(true);
-        if(param.fileType) saveKeys.setAsciiFileNameExtension("b64");
+        
+        // saveKeys.setAsciiFileName(param.keyType ? "obl_keys" : "sym_keys");
+        // saveKeys.setAsciiFileNameTailNumber("0");
+        // saveKeys.setAsciiFileNameTailNumberModulos(0);
+        // saveKeys.setInsertId(true);
+        // if(param.fileType) saveKeys.setAsciiFileNameExtension("b64");
 
         dttRxTransmitter.add("KMS_South", 0);
         MessageHandlerRX = MessageHandler{{&response_},{&response}, dttRxTransmitter, FUNCTIONING_AS_RX};
@@ -81,13 +77,6 @@ namespace SOUTH {
 }
 
 namespace NORTH {
-
-    Message request{"north_request.sgn",10,hType,sWriteMode};
-    HandlerMessage request_{"north_request_.sgn",10,hType,sWriteMode};
-    Message response{"north_response.sgn",10,hType,sWriteMode};
-    HandlerMessage response_{"north_response_.sgn",10,hType,sWriteMode};
-    Binary key{"north_key.sgn",1024,hType,sWriteMode};
-    Binary key_type{"north_key_type.sgn",5,hType,sWriteMode};
 
     LoadAscii readKeys({&key_type},{&key}); // precisa de ser alterado para ter em conta nome dos ficheiros criados pelo kms e index, etc..
     IPTunnel IPTunnel_Server{{},{&request_}};
@@ -133,13 +122,6 @@ namespace NORTH {
 }
 
 namespace KeySync {
-
-    Message request{"sync_request.sgn",1000,hType,sWriteMode};
-    HandlerMessage request_{"sync_request_.sgn",1000,hType,sWriteMode};
-    Message response{"sync_response.sgn",1000,hType,sWriteMode};
-    HandlerMessage response_{"sync_response_.sgn",1000,hType,sWriteMode};
-    Message index{"south_index.sgn",5,hType,sWriteMode};
-    Message discardIndex{"discard_index.sgn",5,hType,sWriteMode};
 
     DestinationTranslationTable dttRxTransmitter;
     MessageHandler MessageHandlerRX{{&response_},{&response}};
@@ -187,7 +169,7 @@ int main(int argc, char *argv[]){
     }
 
     std::string role = argv[1];
-
+    
     SOUTH::setup(role);
     NORTH::setup(role);
     KeySync::setup(role);
@@ -214,6 +196,11 @@ int main(int argc, char *argv[]){
                 // &NORTH::MessageHandlerRX,
                 }
             };
+
+    if (role == "a"){
+        System_.setSignalsFolderName("SignalsA");
+    } else {System_.setSignalsFolderName("SignalsB");}
+
     
     System_.run();
     System_.terminate();
