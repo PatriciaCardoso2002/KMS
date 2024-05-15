@@ -3,10 +3,10 @@
 //--------GENERAL CONFIGURATION-------
 verboseMode=true
 // App IP
-txIpAddress=192.168.4.34
+txIpAddress=127.0.0.1
 txReceivingPort=54003
 // KMS IP
-rxIpAddress=192.168.4.2
+rxIpAddress=127.0.0.1
 rxReceivingPort=54002
 // Type of files to retrieve the keys (0-ASCII, 1-B64)
 fileType=1

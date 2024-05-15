@@ -238,6 +238,7 @@ void MessageHandler::initialize(void)
 bool MessageHandler::runBlock(void)
 {
     bool alive = false;
+    std::cout << "[MH]: ENTER" << std::endl;
 
     // If any message was decremented in any buffer, place alive to true
     for (auto it = buffers->begin(); it != buffers->end(); ++it)
@@ -257,6 +258,7 @@ bool MessageHandler::runBlock(void)
     // Before leaving repeat the execution, in case a new message arrived
     receive_from_input_signals();
 
+    std::cout << "[MH]: EXIT" << std::endl;
     return alive;
 }
 

@@ -17,6 +17,8 @@ bool ETSI004Block::runBlock(void){
     bool alive = true;
     if (getTerminated()) return false;
 
+    std::cout << "[ETSI_SOUTH]: ENTER" << std::endl;
+
     if (getFirstTime()){
         // get_keyResID = 0; // need to be reseted if multiple KSID
         // get_keyID = 0;   // need to be reseted if multiple KSID
@@ -304,5 +306,6 @@ bool ETSI004Block::runBlock(void){
         }
     }
     
+    std::cout << "[ETSI_SOUTH]: EXIT" << std::endl;
     return alive;
 }

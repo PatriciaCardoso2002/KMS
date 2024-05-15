@@ -14,6 +14,7 @@
 #include "KeySync_Block.h"
 #include "KMS.h"
 #include "ETSI004_north.h"
+#include "load_db.h"
 
 // Signal::t_write_mode sWriteMode{ Signal::t_write_mode::Ascii};
 // Signal::t_header_type hType{ Signal::t_header_type::fullHeader };
@@ -79,7 +80,7 @@ namespace SOUTH {
 
 namespace NORTH {
 
-    LoadAscii readKeys({&key_type},{&key}); // precisa de ser alterado para ter em conta nome dos ficheiros criados pelo kms e index, etc..
+    LoadDB loadDB{{&session_info, &KeySync::new_key_ack},{&new_key,&key}};
     IPTunnel IPTunnel_Server{{},{&request_}};
     DestinationTranslationTable dttRxTransmitter;
     MessageHandler MessageHandlerRX{{&request_},{&request}};
@@ -91,14 +92,19 @@ namespace NORTH {
     void setup(t_string role) {
 
         DvQkdLdpcInputParameters param = DvQkdLdpcInputParameters();
-        if(true){
-            param.setInputParametersFileName("input_north.txt");
+        if(role == "a"){
+            param.setInputParametersFileName("input_northA.txt");
             param.readSystemInputParameters();
+            loadDB.setIPDB("172.17.0.2");
+        } else if (role == "b"){
+            param.setInputParametersFileName("input_northB.txt");
+            param.readSystemInputParameters();
+            loadDB.setIPDB("172.17.0.3");
         }
         
 
-        readKeys.setAsciiFileNameTailNumber("0");
-        if(param.fileType) readKeys.setAsciiFileNameExtension(".b64");
+        // readKeys.setAsciiFileNameTailNumber("0");
+        // if(param.fileType) readKeys.setAsciiFileNameExtension(".b64");
 
         IPTunnel_Server.setLocalMachineIpAddress(param.rxIpAddress);
         IPTunnel_Server.setRemoteMachineIpAddress(param.txIpAddress);
@@ -186,12 +192,12 @@ int main(int argc, char *argv[]){
                 &KeySync::IPTunnel_Server,
                 &KeySync::MessageHandlerTX,
                 &KeySync::MessageHandlerRX,
-                // &NORTH::readKeys,
-                // &NORTH::IPTunnel_Server,
-                // &NORTH::ETSI004,
-                // &NORTH::IPTunnel_Client,
-                // &NORTH::MessageHandlerTX,
-                // &NORTH::MessageHandlerRX,
+                &NORTH::loadDB,
+                &NORTH::IPTunnel_Server,
+                &NORTH::ETSI004,
+                &NORTH::IPTunnel_Client,
+                &NORTH::MessageHandlerTX,
+                &NORTH::MessageHandlerRX,
                 }
             };
 

@@ -16,6 +16,8 @@ bool ETSI004North::runBlock(void){
 
     bool alive = true;
     if (getTerminated()) return false;
+
+    std::cout << "[ETSI_NORTH]: ENTER" << std::endl;
     
     auto ready = inputSignals[0]->ready();
     auto readyKey = inputSignals[1]->ready();
@@ -34,6 +36,7 @@ bool ETSI004North::runBlock(void){
         if(getVerboseMode()){
             std::cout << ("[004-NORTH]: ") << "SENT GET_KEY_RESPONSE" << std::endl;
         }
+        waitingKey = false;
     }
 
     if (ready){
@@ -107,7 +110,7 @@ bool ETSI004North::runBlock(void){
         KSID = msgData["key_stream_id"];
         
         t_message sendSession;
-        t_string sendSessionData = key_sync::SESSION(KSID,Sessions[KSID].key_type, Sessions[KSID].key_chunk_size);
+        t_string sendSessionData = key_sync::SESSION(KSID,Sessions[KSID].msg_index,Sessions[KSID].key_type, Sessions[KSID].key_chunk_size).dump();
         sendSession.setMessageData(sendSessionData);
         outputSignals[1]->bufferPut(sendSession);
         waitingKey = true;
@@ -118,6 +121,7 @@ bool ETSI004North::runBlock(void){
         }
 
         KSID = msgData["key_stream_id"];
+        Sessions[KSID].status = "CLOSE";
 
         // send response
         t_message msgSend;
@@ -132,6 +136,6 @@ bool ETSI004North::runBlock(void){
             } 
         }
     }
-      
+    std::cout << "[ETSI_NORTH]: EXIT" << std::endl;
     return true;
 }

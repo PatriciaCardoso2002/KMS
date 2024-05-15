@@ -13,7 +13,7 @@ bool KeySyncBlock::runBlock(void){
     std::set<unsigned int> indexesToErase;
     if (getTerminated()) return false;
 
-    std::cout << "KeySyncBlock running\n";
+    std::cout << "[KEY_SYNC_BLOCK]: ENTER" << std::endl;
 
     // fill the indexes vector with own indexes
     ready = inputSignals[1]->ready();
@@ -30,6 +30,7 @@ bool KeySyncBlock::runBlock(void){
         t_message north_new_key;
         inputSignals[2]->bufferGet(&north_new_key);
         outputSignals[0]->bufferPut(&north_new_key);
+        std::cout << "[KEY_SYNC_BLOCK]: SENT NEW_KEY: " << std::endl;
     }
 
     // check peer message
@@ -74,6 +75,7 @@ bool KeySyncBlock::runBlock(void){
 
         } else if (msgCommand == "NEW_KEY" || msgCommand == "NEW_KEY_ACK"){
             // send new_key/new_key_ack to north
+            std::cout << "[KEY_SYNC_BLOCK]: RECEIVED: " << msgCommand << std::endl;
             outputSignals[3]->bufferPut(msgReceived);
         } 
 
@@ -132,6 +134,7 @@ bool KeySyncBlock::runBlock(void){
     std::cout << "SIGNAL TO DISCARD INDEXES DATABASE: " << msgDataSend << std::endl;
     discardIndexes.clear();
 
+    std::cout << "[KEY_SYNC_BLOCK]: EXIT" << std::endl;
     return alive;
 
 }

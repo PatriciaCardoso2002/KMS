@@ -6,24 +6,24 @@ GRANT ALL PRIVILEGES ON *.* TO 'kms'@'172.17.0.1' WITH GRANT OPTION;
 FLUSH PRIVILEGES;
 
 CREATE TABLE key_store_symmetric (
-    ksid INT,
+    ksid VARCHAR(36),
     id INT,
     hash VARCHAR(255),
-    expiration_timestamp DATETIME,
+    expiration_timestamp DATETIME(3),
     suspended BIT,
-    creation_timestamp DATETIME,
+    creation_timestamp DATETIME(3),
     used BIT,
     key_material VARCHAR(2048),
     PRIMARY KEY (ksid, id)
 );
 
 CREATE TABLE key_store_oblivious (
-    ksid INT,
+    ksid VARCHAR(36),
     id INT,
     hash VARCHAR(255),
-    expiration_timestamp DATETIME,
+    expiration_timestamp DATETIME(3),
     suspended BIT,
-    creation_timestamp DATETIME,
+    creation_timestamp DATETIME(3),
     used BIT,
     key_material VARCHAR(2048),
     PRIMARY KEY (ksid, id)

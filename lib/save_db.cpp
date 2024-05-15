@@ -13,6 +13,8 @@ void SaveDB::initialize(void){
 
 bool SaveDB::runBlock(void){
 
+    std::cout << "[SAVE_DB]: ENTER" << std::endl;
+
     int ready = inputSignals[0]->ready(); //keys
     auto process = ready;
     stmt = connection->createStatement();
@@ -90,7 +92,7 @@ bool SaveDB::runBlock(void){
             //     std::cout << "\tkey_material: " << res->getString("key_material") << std::endl;
             // }
             // delete res;
-            delete stmt;
+            //delete stmt;
             
             break;
 
@@ -151,26 +153,28 @@ bool SaveDB::runBlock(void){
                 }
             }
 
-            res = stmt->executeQuery("SELECT * FROM raw_key_store_oblivious");
-            while (res->next()) {
-                // Access data
-                std::cout << "\tRaw Key Store Oblivious Record:" << std::endl;
-                std::cout << "\tseq: " << res->getInt("seq") << std::endl;
-                std::cout << "\tid: " << res->getInt("id") << std::endl;
-                std::cout << "\tsync: " << res->getBoolean("sync") << std::endl;
-                std::cout << "\ttimestamp: " << res->getString("timestamp") << std::endl;
-                std::cout << "\tsize: " << res->getInt("size") << std::endl;
-                std::cout << "\tsize_used: " << res->getInt("size_used") << std::endl;
-                std::cout << "\tkey_material: " << res->getString("key_material") << std::endl;
-                std::cout << "\t------------------------------------------------" << std::endl;
-            }
-            delete res;
-            delete stmt;
+            // res = stmt->executeQuery("SELECT * FROM raw_key_store_oblivious");
+            // while (res->next()) {
+            //     // Access data
+            //     std::cout << "\tRaw Key Store Oblivious Record:" << std::endl;
+            //     std::cout << "\tseq: " << res->getInt("seq") << std::endl;
+            //     std::cout << "\tid: " << res->getInt("id") << std::endl;
+            //     std::cout << "\tsync: " << res->getBoolean("sync") << std::endl;
+            //     std::cout << "\ttimestamp: " << res->getString("timestamp") << std::endl;
+            //     std::cout << "\tsize: " << res->getInt("size") << std::endl;
+            //     std::cout << "\tsize_used: " << res->getInt("size_used") << std::endl;
+            //     std::cout << "\tkey_material: " << res->getString("key_material") << std::endl;
+            //     std::cout << "\t------------------------------------------------" << std::endl;
+            // }
+            //delete res;
+            //delete stmt;
             
             break;
         default:
             break;
     }
+
+    std::cout << "[SAVE_DB]: EXIT" << std::endl;
 
     return true;
 }
