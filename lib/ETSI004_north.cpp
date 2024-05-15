@@ -101,41 +101,42 @@ bool ETSI004North::runBlock(void){
             t_string msgDataSend = etsi_qkd_004::handle_open_connect(KSID,getQoS(),status).dump();
             msgSend.setMessageData(msgDataSend);
             outputSignals[0]->bufferPut(msgSend);
-        }
-    } else if (msgCommand == "GET_KEY"){
-        if(getVerboseMode()){
-            std::cout << ("[004-NORTH]: ") << "RECEIVED GET_KEY" << std::endl;
-        }
-        // obtain KSID and send Session Info to load_db
-        KSID = msgData["key_stream_id"];
-        
-        t_message sendSession;
-        t_string sendSessionData = key_sync::SESSION(KSID,Sessions[KSID].msg_index,Sessions[KSID].key_type, Sessions[KSID].key_chunk_size).dump();
-        sendSession.setMessageData(sendSessionData);
-        outputSignals[1]->bufferPut(sendSession);
-        waitingKey = true;
+        } else if (msgCommand == "GET_KEY"){
+            if(getVerboseMode()){
+                std::cout << ("[004-NORTH]: ") << "RECEIVED GET_KEY" << std::endl;
+            }
+            // obtain KSID and send Session Info to load_db
+            KSID = msgData["key_stream_id"];
+            Sessions[KSID].msg_index = msgData["index"];
+            
+            t_message sendSession;
+            t_string sendSessionData = key_sync::SESSION(KSID,Sessions[KSID].msg_index,Sessions[KSID].key_type, Sessions[KSID].key_chunk_size).dump();
+            sendSession.setMessageData(sendSessionData);
+            outputSignals[1]->bufferPut(sendSession);
+            waitingKey = true;
 
-    } else if (msgCommand == "CLOSE"){
-        if(getVerboseMode()){
-            std::cout << ("[004-NORTH]: ") << "RECEIVED CLOSE" << std::endl;
+        } else if (msgCommand == "CLOSE"){
+            if(getVerboseMode()){
+                std::cout << ("[004-NORTH]: ") << "RECEIVED CLOSE" << std::endl;
+            }
+
+            KSID = msgData["key_stream_id"];
+            Sessions[KSID].status = "CLOSE";
+
+            // send response
+            t_message msgSend;
+            t_string msgDataSend = etsi_qkd_004::handle_close(status).dump();
+            msgSend.setMessageData(msgDataSend);
+            outputSignals[0]->bufferPut(msgSend);
+
+            if(getVerboseMode()){
+                for(const auto& msg : receivedMessages){
+                    std::cout << "MSG: " << i << " - " << msg << std::endl;
+                    i++;
+                } 
+            }
         }
-
-        KSID = msgData["key_stream_id"];
-        Sessions[KSID].status = "CLOSE";
-
-        // send response
-        t_message msgSend;
-        t_string msgDataSend = etsi_qkd_004::handle_close(status).dump();
-        msgSend.setMessageData(msgDataSend);
-        outputSignals[0]->bufferPut(msgSend);
-
-        if(getVerboseMode()){
-            for(const auto& msg : receivedMessages){
-                std::cout << "MSG: " << i << " - " << msg << std::endl;
-                i++;
-            } 
-        }
-    }
+    } 
     std::cout << "[ETSI_NORTH]: EXIT" << std::endl;
     return true;
 }

@@ -88,10 +88,9 @@ bool LoadDB::runBlock(void){
             }
 
             t_string msgDataSend = key_sync::NEW_KEY_ACK(source,destination,key_stream_id, msg_index).dump();
-            std::cout << "SEGMENTATION FAULT?" << std::endl;
             t_message msgSend;
             msgSend.setMessageData(msgDataSend);
-            outputSignals[1]->bufferPut(msgSend);
+            outputSignals[0]->bufferPut(msgSend);
 
         } else if (msgCommand == "NEW_KEY_ACK"){
             if(getVerboseMode()){
@@ -135,6 +134,15 @@ bool LoadDB::runBlock(void){
                 std::string query = "INSERT INTO " + db_key_name + " (KSID, id, creation_timestamp, used, key_material) VALUES ('" + key_stream_id + "', " + std::to_string(msg_index) + ", CURRENT_TIMESTAMP(3), 0, '" + key_material + "' )";
                 stmt->executeUpdate(query);
             }
+
+        }
+        // Execute the query that retrieves all rows from the key_store_symmetric table
+        res = stmt->executeQuery("SELECT * FROM key_store_oblivious");
+        // Loop over the result set and print each row
+        std::cout << "KEY STORE OBLIVIOUS" << std::endl;
+        while (res->next()) {
+            std::cout << res->getString("ksid") << ", " << res->getInt("id") << ", " << res->getString("hash") << ", " << res->getString("expiration_timestamp") << ", " << res->getBoolean("suspended") << ", " << res->getString("creation_timestamp") << ", " << res->getBoolean("used") << ", " << res->getString("key_material") << std::endl;
+            std::cout << "--------------------------------------------------------------------------------------" << std::endl;
         }
         key_ready = true;
     }
