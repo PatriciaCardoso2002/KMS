@@ -79,19 +79,19 @@ bool SaveDB::runBlock(void){
                 }
             }
 
-            // res = stmt->executeQuery("SELECT * FROM raw_key_store_symmetric");
-            // while (res->next()) {
-            //     // Access data
-            //     std::cout << "\tRaw Key Store Symmetric Record:" << std::endl;
-            //     std::cout << "\tseq: " << res->getInt("seq") << std::endl;
-            //     std::cout << "\tid: " << res->getInt("id") << std::endl;
-            //     std::cout << "\tsync: " << res->getBoolean("sync") << std::endl;
-            //     std::cout << "\ttimestamp: " << res->getString("timestamp") << std::endl;
-            //     std::cout << "\tsize: " << res->getInt("size") << std::endl;
-            //     std::cout << "\tsize_used: " << res->getInt("size_used") << std::endl;
-            //     std::cout << "\tkey_material: " << res->getString("key_material") << std::endl;
-            // }
-            // delete res;
+            res = stmt->executeQuery("SELECT * FROM raw_key_store_symmetric");
+            while (res->next()) {
+                // Access data
+                std::cout << "\tRaw Key Store Symmetric Record:" << std::endl;
+                std::cout << "\tseq: " << res->getInt("seq") << std::endl;
+                std::cout << "\tid: " << res->getInt("id") << std::endl;
+                std::cout << "\tsync: " << res->getBoolean("sync") << std::endl;
+                std::cout << "\ttimestamp: " << res->getString("timestamp") << std::endl;
+                std::cout << "\tsize: " << res->getInt("size") << std::endl;
+                std::cout << "\tsize_used: " << res->getInt("size_used") << std::endl;
+                std::cout << "\tkey_material: " << res->getString("key_material") << std::endl;
+            }
+            delete res;
             //delete stmt;
             
             break;

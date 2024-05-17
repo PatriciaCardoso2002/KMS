@@ -1,10 +1,3 @@
-CREATE DATABASE KeyStorage;
-USE KeyStorage;
-
-CREATE USER 'kms'@'172.17.0.1' IDENTIFIED BY 'YourStrongPassword';
-GRANT ALL PRIVILEGES ON *.* TO 'kms'@'172.17.0.1' WITH GRANT OPTION;
-FLUSH PRIVILEGES;
-
 CREATE TABLE key_store_symmetric (
     ksid VARCHAR(36),
     id INT,

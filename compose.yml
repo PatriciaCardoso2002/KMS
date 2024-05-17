@@ -1,0 +1,26 @@
+services:
+  kms:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["./kms", "a"]
+    depends_on:
+      - kms_db
+    networks:
+      - kms-network
+
+  kms_db:
+    build:
+      context: ./db
+      dockerfile: Dockerfile
+    environment:
+      MYSQL_ROOT_PASSWORD: YourStrongPassword
+      MYSQL_DATABASE: KeyStorage
+      MYSQL_USER: kms
+      MYSQL_PASSWORD: YourStrongPassword
+    networks:
+      - kms-network
+
+networks:
+  kms-network:
+    driver: bridge

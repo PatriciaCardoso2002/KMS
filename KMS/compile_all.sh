@@ -1,1 +1,0 @@
-for file in Makefile*; do make -f $file clean; make -f $file; done

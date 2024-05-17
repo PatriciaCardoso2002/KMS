@@ -36,22 +36,15 @@ namespace SOUTH {
         if(role=="a"){
             param.setInputParametersFileName("input_southA.txt");
             param.readSystemInputParameters();
-            saveKeys.setIPDB("172.17.0.2");
+            saveKeys.setIPDB("kms_db");
         } else if (role=="b") {
             param.setInputParametersFileName("input_southB.txt");
             param.readSystemInputParameters();
-            saveKeys.setIPDB("172.17.0.3");
+            saveKeys.setIPDB("kms_db");
         }
 
         saveKeys.setSaveType(param.fileType);
         saveKeys.setKeyType(param.keyType);
-        
-        
-        // saveKeys.setAsciiFileName(param.keyType ? "obl_keys" : "sym_keys");
-        // saveKeys.setAsciiFileNameTailNumber("0");
-        // saveKeys.setAsciiFileNameTailNumberModulos(0);
-        // saveKeys.setInsertId(true);
-        // if(param.fileType) saveKeys.setAsciiFileNameExtension("b64");
 
         dttRxTransmitter.add("KMS_South", 0);
         MessageHandlerRX = MessageHandler{{&response_},{&response}, dttRxTransmitter, FUNCTIONING_AS_RX};
@@ -153,13 +146,13 @@ namespace KeySync {
         MessageHandlerRX = MessageHandler{{&response_},{&response}, dttRxTransmitter, FUNCTIONING_AS_RX};
         MessageHandlerTX = MessageHandler{{&request},{&request_}, FUNCTIONING_AS_TX, ittTxTransmitter};
 
-        IPTunnel_Client.setLocalMachineIpAddress("127.0.0.1");
-        IPTunnel_Client.setRemoteMachineIpAddress("127.0.0.1");
+        IPTunnel_Client.setLocalMachineIpAddress(param.rxIpAddress);
+        IPTunnel_Client.setRemoteMachineIpAddress(param.txIpAddress);
         IPTunnel_Client.setRemoteMachinePort(param.txReceivingPort);
         IPTunnel_Client.setVerboseMode(true);
 
-        IPTunnel_Server.setLocalMachineIpAddress("127.0.0.1");
-        IPTunnel_Server.setRemoteMachineIpAddress("127.0.0.1");
+        IPTunnel_Server.setLocalMachineIpAddress(param.rxIpAddress);
+        IPTunnel_Server.setRemoteMachineIpAddress(param.txIpAddress);
         IPTunnel_Server.setLocalMachinePort(param.rxReceivingPort);
         IPTunnel_Server.setVerboseMode(true);
 
@@ -167,11 +160,11 @@ namespace KeySync {
 }
 
 int main(int argc, char *argv[]){
+
     if (argc < 2) {
         std::cerr << "Usage: " << argv[0] << " a/b\n";
         return 1;
     }
-
     std::string role = argv[1];
     
     SOUTH::setup(role);
