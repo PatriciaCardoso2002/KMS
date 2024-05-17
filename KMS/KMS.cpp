@@ -16,8 +16,7 @@
 #include "ETSI004_north.h"
 #include "load_db.h"
 
-// Signal::t_write_mode sWriteMode{ Signal::t_write_mode::Ascii};
-// Signal::t_header_type hType{ Signal::t_header_type::fullHeader };
+DvQkdLdpcInputParameters param = DvQkdLdpcInputParameters();
 
 namespace SOUTH {
 
@@ -30,44 +29,34 @@ namespace SOUTH {
     IPTunnel IPTunnel_Server{{},{&response_}};
     ETSI004Block ETSI004{{&response},{&request, &key, &index}};
 
-    void setup(t_string role){
+    void setup(DvQkdLdpcInputParameters& parameters){
 
-        DvQkdLdpcInputParameters param = DvQkdLdpcInputParameters();
-        if(role=="a"){
-            param.setInputParametersFileName("input_southA.txt");
-            param.readSystemInputParameters();
-            saveKeys.setIPDB("kms_db");
-        } else if (role=="b") {
-            param.setInputParametersFileName("input_southB.txt");
-            param.readSystemInputParameters();
-            saveKeys.setIPDB("kms_db");
-        }
-
-        saveKeys.setSaveType(param.fileType);
-        saveKeys.setKeyType(param.keyType);
+        saveKeys.setIPDB("kms_db");
+        saveKeys.setSaveType(parameters.saveType);
+        saveKeys.setKeyType(parameters.keyType);
 
         dttRxTransmitter.add("KMS_South", 0);
         MessageHandlerRX = MessageHandler{{&response_},{&response}, dttRxTransmitter, FUNCTIONING_AS_RX};
         ittTxTransmitter.add(0, {"Key_Provider", "KMS_South"});
         MessageHandlerTX = MessageHandler{{&request},{&request_}, FUNCTIONING_AS_TX, ittTxTransmitter};
 
-        IPTunnel_Client.setLocalMachineIpAddress(param.txIpAddress);
-        IPTunnel_Client.setRemoteMachineIpAddress(param.rxIpAddress);
-        IPTunnel_Client.setRemoteMachinePort(param.rxReceivingPort);
-        IPTunnel_Client.setVerboseMode(param.verboseMode);
+        IPTunnel_Client.setLocalMachineIpAddress(parameters.sthIpAddress);
+        IPTunnel_Client.setRemoteMachineIpAddress(parameters.kpsIpAddress);
+        IPTunnel_Client.setRemoteMachinePort(parameters.kpsPort);
+        IPTunnel_Client.setVerboseMode(parameters.verboseMode);
 
-        IPTunnel_Server.setLocalMachineIpAddress(param.txIpAddress);
-        IPTunnel_Server.setRemoteMachineIpAddress(param.rxIpAddress);
-        IPTunnel_Server.setLocalMachinePort(param.txReceivingPort);
-        IPTunnel_Server.setVerboseMode(param.verboseMode);
+        IPTunnel_Server.setLocalMachineIpAddress(parameters.sthIpAddress);
+        IPTunnel_Server.setRemoteMachineIpAddress(parameters.kpsIpAddress);
+        IPTunnel_Server.setLocalMachinePort(parameters.sthPort);
+        IPTunnel_Server.setVerboseMode(parameters.verboseMode);
 
         ETSI004.setID("Tx");
         ETSI004.setMode(ETSI004Block::PUSH);
-        ETSI004.setSource(param.etsiSource);
-        ETSI004.setDestination(param.etsiDest);
-        ETSI004.setQoS((unsigned int) param.keyType, (unsigned int) param.keyChunkSize, (unsigned int) param.maxBps, (unsigned int) param.minBps, (unsigned int) param.jitter, (unsigned int) param.priority, (unsigned int) param.timeout, (unsigned int) param.ttl, param.metaMimetype );
-        ETSI004.setNumKeys((unsigned int) param.numKeys);
-        ETSI004.setVerboseMode(param.verboseMode);
+        ETSI004.setSource(parameters.etsiSource);
+        ETSI004.setDestination(parameters.etsiDest);
+        ETSI004.setQoS((unsigned int) parameters.keyType, (unsigned int) parameters.keyChunkSize, (unsigned int) parameters.maxBps, (unsigned int) parameters.minBps, (unsigned int) parameters.jitter, (unsigned int) parameters.priority, (unsigned int) parameters.timeout, (unsigned int) parameters.ttl, parameters.metaMimetype );
+        ETSI004.setNumKeys((unsigned int) parameters.numKeys);
+        ETSI004.setVerboseMode(parameters.verboseMode);
     }
 }
 
@@ -82,39 +71,28 @@ namespace NORTH {
     IPTunnel IPTunnel_Client{{&response_},{}};
     ETSI004North ETSI004{{&request, &key},{&response, &session_info}};
 
-    void setup(t_string role) {
+    void setup(DvQkdLdpcInputParameters& parameters) {
 
-        DvQkdLdpcInputParameters param = DvQkdLdpcInputParameters();
-        if(role == "a"){
-            param.setInputParametersFileName("input_northA.txt");
-            param.readSystemInputParameters();
-            loadDB.setIPDB("172.17.0.2");
-        } else if (role == "b"){
-            param.setInputParametersFileName("input_northB.txt");
-            param.readSystemInputParameters();
-            loadDB.setIPDB("172.17.0.3");
-        }
-        
-
+        loadDB.setIPDB("kms_db");
         // readKeys.setAsciiFileNameTailNumber("0");
         // if(param.fileType) readKeys.setAsciiFileNameExtension(".b64");
 
-        IPTunnel_Server.setLocalMachineIpAddress(param.rxIpAddress);
-        IPTunnel_Server.setRemoteMachineIpAddress(param.txIpAddress);
-        IPTunnel_Server.setLocalMachinePort(param.rxReceivingPort);
-        IPTunnel_Server.setVerboseMode(param.verboseMode);
+        IPTunnel_Server.setLocalMachineIpAddress(parameters.nthIpAddress);
+        IPTunnel_Server.setRemoteMachineIpAddress(parameters.appIpAddress);
+        IPTunnel_Server.setLocalMachinePort(parameters.nthPort);
+        IPTunnel_Server.setVerboseMode(parameters.verboseMode);
 
-        IPTunnel_Client.setLocalMachineIpAddress(param.rxIpAddress);
-        IPTunnel_Client.setRemoteMachineIpAddress(param.txIpAddress);
-        IPTunnel_Client.setRemoteMachinePort(param.txReceivingPort);
-        IPTunnel_Client.setVerboseMode(param.verboseMode);
+        IPTunnel_Client.setLocalMachineIpAddress(parameters.nthIpAddress);
+        IPTunnel_Client.setRemoteMachineIpAddress(parameters.appIpAddress);
+        IPTunnel_Client.setRemoteMachinePort(parameters.appPort);
+        IPTunnel_Client.setVerboseMode(parameters.verboseMode);
 
         dttRxTransmitter.add("KMS_North", 0);
         MessageHandlerRX = MessageHandler{{&request_},{&request}, dttRxTransmitter, FUNCTIONING_AS_RX};
         ittTxTransmitter.add(0, {"APP_A", "KMS_North"});
         MessageHandlerTX = MessageHandler{{&response},{&response_}, FUNCTIONING_AS_TX, ittTxTransmitter };
 
-        ETSI004.setVerboseMode(param.verboseMode);
+        ETSI004.setVerboseMode(parameters.verboseMode);
     }
 }
 
@@ -128,34 +106,38 @@ namespace KeySync {
     IPTunnel IPTunnel_Server{{},{&response_}};
     KeySyncBlock KeySync{{&response,&SOUTH::index,&NORTH::new_key},{&request, &index, &discardIndex, &new_key_ack}};
 
-    void setup(t_string role){
+    void setup(DvQkdLdpcInputParameters& parameters, t_string role){
 
-        DvQkdLdpcInputParameters param = DvQkdLdpcInputParameters();
-        if(role=="a"){
-            param.setInputParametersFileName("input_syncA.txt");
-            param.readSystemInputParameters();
+        if(role == "a"){
             dttRxTransmitter.add("KMS_A", 0);
             ittTxTransmitter.add(0, {"KMS_B", "KMS_A"});
-        } else if (role=="b"){
-            param.setInputParametersFileName("input_syncB.txt");
-            param.readSystemInputParameters();
+
+            IPTunnel_Client.setLocalMachineIpAddress(parameters.syncAipAddress);
+            IPTunnel_Client.setRemoteMachineIpAddress(parameters.syncBipAddress);
+            IPTunnel_Client.setRemoteMachinePort(parameters.syncBport);
+
+            IPTunnel_Server.setLocalMachineIpAddress(parameters.syncAipAddress);
+            IPTunnel_Server.setRemoteMachineIpAddress(parameters.syncBipAddress);
+            IPTunnel_Server.setLocalMachinePort(parameters.syncAport);
+            
+        } else if (role == "b"){
             dttRxTransmitter.add("KMS_B", 0);
             ittTxTransmitter.add(0, {"KMS_A", "KMS_B"});
+
+            IPTunnel_Client.setLocalMachineIpAddress(parameters.syncBipAddress);
+            IPTunnel_Client.setRemoteMachineIpAddress(parameters.syncAipAddress);
+            IPTunnel_Client.setRemoteMachinePort(parameters.syncAport);
+
+            IPTunnel_Server.setLocalMachineIpAddress(parameters.syncBipAddress);
+            IPTunnel_Server.setRemoteMachineIpAddress(parameters.syncAipAddress);
+            IPTunnel_Server.setLocalMachinePort(parameters.syncBport);
         }
+
+        IPTunnel_Client.setVerboseMode(true);
+        IPTunnel_Server.setVerboseMode(true);
 
         MessageHandlerRX = MessageHandler{{&response_},{&response}, dttRxTransmitter, FUNCTIONING_AS_RX};
         MessageHandlerTX = MessageHandler{{&request},{&request_}, FUNCTIONING_AS_TX, ittTxTransmitter};
-
-        IPTunnel_Client.setLocalMachineIpAddress(param.rxIpAddress);
-        IPTunnel_Client.setRemoteMachineIpAddress(param.txIpAddress);
-        IPTunnel_Client.setRemoteMachinePort(param.txReceivingPort);
-        IPTunnel_Client.setVerboseMode(true);
-
-        IPTunnel_Server.setLocalMachineIpAddress(param.rxIpAddress);
-        IPTunnel_Server.setRemoteMachineIpAddress(param.txIpAddress);
-        IPTunnel_Server.setLocalMachinePort(param.rxReceivingPort);
-        IPTunnel_Server.setVerboseMode(true);
-
     }
 }
 
@@ -165,11 +147,15 @@ int main(int argc, char *argv[]){
         std::cerr << "Usage: " << argv[0] << " a/b\n";
         return 1;
     }
+
+    param.setInputParametersFileName("input_KMS.txt");
+    param.readSystemInputParameters();
     std::string role = argv[1];
+
     
-    SOUTH::setup(role);
-    NORTH::setup(role);
-    KeySync::setup(role);
+    SOUTH::setup(param);
+    NORTH::setup(param);
+    KeySync::setup(param, role);
 
     System System_
             {
@@ -198,7 +184,6 @@ int main(int argc, char *argv[]){
         System_.setSignalsFolderName("SignalsA");
     } else {System_.setSignalsFolderName("SignalsB");}
 
-    
     System_.run();
     System_.terminate();
 

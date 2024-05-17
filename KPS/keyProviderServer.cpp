@@ -12,22 +12,10 @@
 #include "cv_qokd_ldpc_multi_machine_sdf.h"
 
 int main(int argc, char *argv[]){
-    
-    if (argc < 2) {
-        std::cerr << "Usage: " << argv[0] << " a/b\n";
-        return 1;
-    }
-
-    std::string role = argv[1];
 
     DvQkdLdpcInputParameters param = DvQkdLdpcInputParameters();
-    if(role=="a"){
-        param.setInputParametersFileName("input_keyProviderA.txt");
-        param.readSystemInputParameters();
-    } else if (role=="b"){
-        param.setInputParametersFileName("input_keyProviderB.txt");
-        param.readSystemInputParameters();
-    }
+    param.setInputParametersFileName("input_KPS.txt");
+    param.readSystemInputParameters();
 
     Signal::t_write_mode sWriteMode{ Signal::t_write_mode::Ascii};
     Signal::t_header_type hType{ Signal::t_header_type::fullHeader };
@@ -49,9 +37,9 @@ int main(int argc, char *argv[]){
     }
 
     IPTunnel IPTunnelServer_Server{{},{&request_}};
-    IPTunnelServer_Server.setLocalMachineIpAddress(param.rxIpAddress);
-    IPTunnelServer_Server.setRemoteMachineIpAddress(param.txIpAddress);
-    IPTunnelServer_Server.setLocalMachinePort(param.rxReceivingPort);
+    IPTunnelServer_Server.setLocalMachineIpAddress(param.kpsIpAddress);
+    IPTunnelServer_Server.setRemoteMachineIpAddress(param.sthIpAddress);
+    IPTunnelServer_Server.setLocalMachinePort(param.kpsPort);
     IPTunnelServer_Server.setVerboseMode(param.verboseMode);
     //IPTunnelServer_Server.setTimeIntervalSeconds(10);
 
@@ -66,9 +54,9 @@ int main(int argc, char *argv[]){
     MessageHandler MessageHandlerServerTX{ {&response},{&response_},FUNCTIONING_AS_TX,ittTxTransmitter};
 
     IPTunnel IPTunnelServer_Client{{&response_},{}};
-    IPTunnelServer_Client.setLocalMachineIpAddress(param.rxIpAddress);
-    IPTunnelServer_Client.setRemoteMachineIpAddress(param.txIpAddress);
-    IPTunnelServer_Client.setRemoteMachinePort(param.txReceivingPort);
+    IPTunnelServer_Client.setLocalMachineIpAddress(param.kpsIpAddress);
+    IPTunnelServer_Client.setRemoteMachineIpAddress(param.sthIpAddress);
+    IPTunnelServer_Client.setRemoteMachinePort(param.sthPort);
     IPTunnelServer_Client.setVerboseMode(param.verboseMode);
     //IPTunnelServer_Client.setTimeIntervalSeconds(10);
     
