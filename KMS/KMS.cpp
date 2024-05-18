@@ -30,8 +30,8 @@ namespace SOUTH {
     ETSI004Block ETSI004{{&response},{&request, &key, &index}};
 
     void setup(DvQkdLdpcInputParameters& parameters){
-
-        saveKeys.setIPDB("kms_db");
+        
+        saveKeys.setIPDB("");
         saveKeys.setSaveType(parameters.saveType);
         saveKeys.setKeyType(parameters.keyType);
 
@@ -73,7 +73,7 @@ namespace NORTH {
 
     void setup(DvQkdLdpcInputParameters& parameters) {
 
-        loadDB.setIPDB("kms_db");
+        loadDB.setIPDB("");
         // readKeys.setAsciiFileNameTailNumber("0");
         // if(param.fileType) readKeys.setAsciiFileNameExtension(".b64");
 
@@ -147,11 +147,10 @@ int main(int argc, char *argv[]){
         std::cerr << "Usage: " << argv[0] << " a/b\n";
         return 1;
     }
-
+    std::string role = argv[1];
+    
     param.setInputParametersFileName("input_KMS.txt");
     param.readSystemInputParameters();
-    std::string role = argv[1];
-
     
     SOUTH::setup(param);
     NORTH::setup(param);

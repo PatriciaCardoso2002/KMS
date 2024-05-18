@@ -8,8 +8,7 @@ services:
       depends_on:
         kms_db:
           condition: service_healthy  # Wait for db to be healthy
-      networks:
-        - kms-network
+      network_mode: "host"
 
   kms_db:
     build:
@@ -22,6 +21,8 @@ services:
       MYSQL_PASSWORD: YourStrongPassword
     networks:
       - kms-network
+    ports:
+      - "3306:3306"
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "kms", "-pYourStrongPassword"]
       interval: 10s
