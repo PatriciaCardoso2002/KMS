@@ -1,5 +1,6 @@
 //--------KMS INPUT PARAMETERS---------
 verboseMode=true
+dbIpAddress=127.0.0.1
 //---------------> SOUTH
 sthIpAddress=192.168.1.75
 kpsIpAddress=192.168.1.243

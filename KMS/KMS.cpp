@@ -31,7 +31,7 @@ namespace SOUTH {
 
     void setup(DvQkdLdpcInputParameters& parameters){
         
-        saveKeys.setIPDB("");
+        saveKeys.setIPDB(parameters.dbIpAddress);
         saveKeys.setSaveType(parameters.saveType);
         saveKeys.setKeyType(parameters.keyType);
 
@@ -71,7 +71,7 @@ namespace NORTH {
 
     void setup(DvQkdLdpcInputParameters& parameters) {
 
-        loadDB.setIPDB("");
+        loadDB.setIPDB(parameters.dbIpAddress);
         // readKeys.setAsciiFileNameTailNumber("0");
         // if(param.fileType) readKeys.setAsciiFileNameExtension(".b64");
 
