@@ -103,6 +103,10 @@ bool ETSI004kps::runBlock(void){
                 status = etsi_qkd_004::GK_INSUFFICIENT_KEY_AVAILABLE;
                 msgDataSend = etsi_qkd_004::handle_get_key(status,keyBuffer,Sessions[KSID].index,metadata_server).dump();
             }
+
+            t_message msgSend;
+            msgSend.setMessageData(msgDataSend);
+            outputSignals[0]->bufferPut(msgSend);
         }
     } else if (msgCommand == "CLOSE"){
         if(getVerboseMode()){
