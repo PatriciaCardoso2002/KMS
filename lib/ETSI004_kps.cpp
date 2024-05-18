@@ -89,7 +89,7 @@ bool ETSI004kps::runBlock(void){
 
         KSID = msgData["key_stream_id"];
         
-        if(inputSignals[1]->ready()){
+        if(inputSignals[1]->ready() && Sessions[KSID].index < num_keys){
             etsi_qkd_004::KeyBuffer keyBuffer;
             for(auto k = 0; k < Sessions[KSID].key_chunk_size; k++){
                 t_binary kval{0};

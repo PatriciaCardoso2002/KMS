@@ -68,6 +68,9 @@ public:
         return destination;
     }
 
+    void setNumKeys(unsigned int NumKeys){num_keys = NumKeys;}
+    unsigned int getNumKeys(){return num_keys;}
+
 private:
 
     struct SessionInfo {
@@ -88,6 +91,7 @@ private:
     json msgCommand;
     json msgData;
 
+    unsigned int num_keys{0};
     etsi_qkd_004::URI source = "source";
     etsi_qkd_004::URI destination = "destination";
     etsi_qkd_004::QoS qos;
