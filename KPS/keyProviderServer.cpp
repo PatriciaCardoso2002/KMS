@@ -7,7 +7,7 @@
 #include "save_ascii_2024.h"
 #include "ms_windows_console_output_common_20200819.h"
 #include "ip_tunnel_ms_windows_20200819.h"
-#include "ETSI004_block.h"
+#include "ETSI004_kps.h"
 #include "etsi_qkd_004.h"
 #include "cv_qokd_ldpc_multi_machine_sdf.h"
 
@@ -61,18 +61,15 @@ int main(int argc, char *argv[]){
     //IPTunnelServer_Client.setTimeIntervalSeconds(10);
     
 
-    ETSI004Block ETSI004_RECON{{&request, &key}, {&response, &key_type}};
-    ETSI004_RECON.setID("Rx");
-    ETSI004_RECON.setMode(ETSI004Block::PUSH);
-    ETSI004_RECON.setNumKeys((unsigned int) param.numKeys);
-    ETSI004_RECON.setVerboseMode(param.verboseMode);
+    ETSI004kps ETSI004{{&request, &key}, {&response, &key_type}};
+    ETSI004.setVerboseMode(param.verboseMode);
 
     System System_
             {
                 {
                 &readKeys,
                 &IPTunnelServer_Server,
-                &ETSI004_RECON,
+                &ETSI004,
                 &IPTunnelServer_Client,
                 &MessageHandlerServerTX,
                 &MessageHandlerServerRX,

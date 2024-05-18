@@ -7,7 +7,6 @@
 #include "save_db.h"
 #include "ms_windows_console_output_common_20200819.h"
 #include "ip_tunnel_ms_windows_20200819.h"
-#include "ETSI004_block.h"
 #include "etsi_qkd_004.h"
 #include "cv_qokd_ldpc_multi_machine_sdf.h"
 #include "peer_comm.h"
@@ -15,6 +14,7 @@
 #include "KMS.h"
 #include "ETSI004_north.h"
 #include "load_db.h"
+#include "ETSI004_south.h"
 
 DvQkdLdpcInputParameters param = DvQkdLdpcInputParameters();
 
@@ -27,7 +27,7 @@ namespace SOUTH {
     MessageHandler MessageHandlerTX{{&request},{&request_}};
     IPTunnel IPTunnel_Client{{&request_},{}};
     IPTunnel IPTunnel_Server{{},{&response_}};
-    ETSI004Block ETSI004{{&response},{&request, &key, &index}};
+    ETSI004South ETSI004{{&response},{&request, &key, &index}};
 
     void setup(DvQkdLdpcInputParameters& parameters){
         
@@ -50,8 +50,6 @@ namespace SOUTH {
         IPTunnel_Server.setLocalMachinePort(parameters.sthPort);
         IPTunnel_Server.setVerboseMode(parameters.verboseMode);
 
-        ETSI004.setID("Tx");
-        ETSI004.setMode(ETSI004Block::PUSH);
         ETSI004.setSource(parameters.etsiSource);
         ETSI004.setDestination(parameters.etsiDest);
         ETSI004.setQoS((unsigned int) parameters.keyType, (unsigned int) parameters.keyChunkSize, (unsigned int) parameters.maxBps, (unsigned int) parameters.minBps, (unsigned int) parameters.jitter, (unsigned int) parameters.priority, (unsigned int) parameters.timeout, (unsigned int) parameters.ttl, parameters.metaMimetype );
