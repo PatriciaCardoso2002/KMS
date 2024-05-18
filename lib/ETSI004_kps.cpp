@@ -21,6 +21,8 @@ bool ETSI004kps::runBlock(void){
         msgJson = json::parse(msgReceived.getMessageData());
         msgCommand = msgJson["command"];
         msgData = msgJson["data"];
+    } else if ( msgCommand != "GET_KEY" ){
+        msgCommand = nullptr;
     }
 
     if (msgCommand == "OPEN_CONNECT"){
@@ -80,7 +82,7 @@ bool ETSI004kps::runBlock(void){
         msgSend.setMessageData(msgDataSend);
         outputSignals[0]->bufferPut(msgSend);
 
-    } else if (msgCommand == "GET_KEY"){
+    } else if (msgCommand == "GET_KEY" && !(cnt % sampleP)){
         if(getVerboseMode()){
             std::cout << "RECEIVED GET_KEY" << std::endl;
         }
@@ -129,5 +131,6 @@ bool ETSI004kps::runBlock(void){
         }
         setTerminated(true);
     }
+    cnt++;
     return true;
 }

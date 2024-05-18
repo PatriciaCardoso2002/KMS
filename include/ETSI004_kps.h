@@ -79,6 +79,8 @@ private:
     std::vector<t_message> receivedMessages = {};
     std::unordered_map<etsi_qkd_004::UUID, SessionInfo> Sessions;
 
+    t_integer sampleP{ 10 };
+    t_integer cnt{0};
     t_integer ready;
     t_integer i{0};
 
