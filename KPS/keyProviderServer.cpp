@@ -41,7 +41,7 @@ int main(int argc, char *argv[]){
     IPTunnelServer_Server.setRemoteMachineIpAddress(param.sthIpAddress);
     IPTunnelServer_Server.setLocalMachinePort(param.kpsPort);
     IPTunnelServer_Server.setVerboseMode(param.verboseMode);
-    //IPTunnelServer_Server.setTimeIntervalSeconds(10);
+    IPTunnelServer_Server.setTimeIntervalSeconds(10);
 
     // RX
     DestinationTranslationTable dttRxTransmitter;
@@ -58,10 +58,11 @@ int main(int argc, char *argv[]){
     IPTunnelServer_Client.setRemoteMachineIpAddress(param.sthIpAddress);
     IPTunnelServer_Client.setRemoteMachinePort(param.sthPort);
     IPTunnelServer_Client.setVerboseMode(param.verboseMode);
-    //IPTunnelServer_Client.setTimeIntervalSeconds(10);
+    IPTunnelServer_Client.setTimeIntervalSeconds(10);
     
 
     ETSI004kps ETSI004{{&request, &key}, {&response, &key_type}};
+    ETSI004.setNumKeys((unsigned int)param.numKeys);
     ETSI004.setVerboseMode(param.verboseMode);
 
     System System_
