@@ -2,10 +2,10 @@
 //
 //--------GENERAL CONFIGURATION-------
 verboseMode=true
-txIpAddress=127.0.0.1
-txReceivingPort=54003
-rxIpAddress=127.0.0.1
-rxReceivingPort=54002
+nthIpAddress=192.168.1.75
+appIpAddress=192.168.1.243
+nthPort=54200
+appPort=54201
 //---------ETSI CONFIGURATION---------
 etsiSource=APP_A
 etsiDest=KMS
@@ -13,6 +13,7 @@ etsiDest=KMS
 numKeys=10
 // Type of keys requested (0 - Symmetric, 1 - Oblivious)
 keyType=1
+fileType=1
 // Size of the keys requested (n elements of given type, i.e 50 base64 chars)
 keyChunkSize=100
 //

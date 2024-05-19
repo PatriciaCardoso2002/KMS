@@ -11,7 +11,13 @@
 #include "etsi_qkd_004.h"
 #include "cv_qokd_ldpc_multi_machine_sdf.h"
 
-int main(){
+int main(int argc, char *argv[]){
+    if (argc < 2) {
+        std::cerr << "Usage: " << argv[0] << " a/b\n";
+        return 1;
+    }
+    std::string role = argv[1];
+
     DvQkdLdpcInputParameters param = DvQkdLdpcInputParameters();
     param.setInputParametersFileName("input_APPA.txt");
     param.readSystemInputParameters();
@@ -25,6 +31,13 @@ int main(){
     HandlerMessage response_{"appA_response_.sgn",10,hType,sWriteMode};
     Binary key{"appA_key.sgn",1024,hType,sWriteMode};
     Message index{"appA_index.sgn",5,hType,sWriteMode};
+
+    SaveAscii saveKeys{{&key, &index},{}};
+    saveKeys.setAsciiFileName(param.keyType ? "obl_keys" : "sym_keys");
+    saveKeys.setAsciiFileNameTailNumber("0");
+    saveKeys.setAsciiFileNameTailNumberModulos(0);
+    saveKeys.setInsertId(true);
+    if(param.fileType) saveKeys.setAsciiFileNameExtension("b64");
 
     DestinationTranslationTable dttRxTransmitter;
     dttRxTransmitter.add("APP_A", 0);
