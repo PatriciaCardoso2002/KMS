@@ -44,11 +44,14 @@ namespace SOUTH {
         IPTunnel_Client.setRemoteMachineIpAddress(parameters.kpsIpAddress);
         IPTunnel_Client.setRemoteMachinePort(parameters.kpsPort);
         IPTunnel_Client.setVerboseMode(parameters.verboseMode);
+        IPTunnel_Client.setTimeIntervalSeconds(10);
 
         IPTunnel_Server.setLocalMachineIpAddress(parameters.sthIpAddress);
         IPTunnel_Server.setRemoteMachineIpAddress(parameters.kpsIpAddress);
         IPTunnel_Server.setLocalMachinePort(parameters.sthPort);
         IPTunnel_Server.setVerboseMode(parameters.verboseMode);
+        IPTunnel_Client.setTimeIntervalSeconds(10);
+
 
         ETSI004.setSource(parameters.etsiSource);
         ETSI004.setDestination(parameters.etsiDest);

@@ -7,6 +7,8 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <string.h>
+#include <thread>
+#include <chrono>
 
 // ############################################################
 //  these constants are useful, but appear to be specific to */
@@ -110,6 +112,7 @@ bool IPTunnel::runBlock(void)
 	t_bool alive{ true };
 	size_t process{ 0 };
 
+	std::this_thread::sleep_for(std::chrono::milliseconds(timeIntervalSeconds));
 
 	// Run Server/Receiver
 	if (inputSignals.empty())
@@ -298,6 +301,7 @@ bool IPTunnel::runBlock(void)
 					{
 						k->bufferPut(msg);
 					}
+					
 
 					aux = aux + msg.size();
 				}
@@ -412,7 +416,7 @@ size_t IPTunnel::ipTunnelSend_tcp(size_t process) {
 	size_t remaining = process;
 	size_t result{ 0 };
 	size_t sent{ 0 };
-//	while (remaining > 0) {
+	while (remaining > 0) {
 		result = send(clientSocket[0], &(ip_tunnel_buffer[0]) + sent, (int) remaining, 0);
 		if (result >= 0) 
 		{
@@ -437,9 +441,9 @@ size_t IPTunnel::ipTunnelSend_tcp(size_t process) {
 				else std::cerr << "ERROR sending TCP, error #: " << errno << std::endl;
 				#endif
 			}
-//			break;
+			break;
 		}
-//	}
+	}
 	return sent;
 }
 
@@ -936,7 +940,6 @@ bool IPTunnel::client_tcp() {
 		//{
 			//std::cerr << "Can't connect to server, Err #" << WSAGetLastError() << std::endl;
 			//std::cerr << "Waiting " << timeIntervalSeconds << " seconds." << std::endl;
-			//Sleep(timeIntervalSeconds * 1000);
 		//}
 
 		//if (--numberOfTrials == 0) {
