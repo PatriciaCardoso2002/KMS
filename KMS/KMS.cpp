@@ -50,7 +50,7 @@ namespace SOUTH {
         IPTunnel_Server.setRemoteMachineIpAddress(parameters.kpsIpAddress);
         IPTunnel_Server.setLocalMachinePort(parameters.sthPort);
         IPTunnel_Server.setVerboseMode(parameters.verboseMode);
-        IPTunnel_Client.setTimeIntervalSeconds(10);
+        IPTunnel_Server.setTimeIntervalSeconds(10);
 
 
         ETSI004.setSource(parameters.etsiSource);

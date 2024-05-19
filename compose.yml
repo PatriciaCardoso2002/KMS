@@ -22,7 +22,7 @@ services:
     networks:
       - kms-network
     ports:
-      - "3306:3306"
+      - "3307:3306"
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "kms", "-pYourStrongPassword"]
       interval: 10s

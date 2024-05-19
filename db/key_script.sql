@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS key_store_symmetric;
 CREATE TABLE key_store_symmetric (
     ksid VARCHAR(36),
     id INT,
@@ -10,6 +11,7 @@ CREATE TABLE key_store_symmetric (
     PRIMARY KEY (ksid, id)
 );
 
+DROP TABLE IF EXISTS key_store_oblivious;
 CREATE TABLE key_store_oblivious (
     ksid VARCHAR(36),
     id INT,
@@ -22,6 +24,7 @@ CREATE TABLE key_store_oblivious (
     PRIMARY KEY (ksid, id)
 );
 
+DROP TABLE IF EXISTS raw_key_store_symmetric;
 CREATE TABLE raw_key_store_symmetric (
     seq INT,
     id INT,
@@ -33,6 +36,7 @@ CREATE TABLE raw_key_store_symmetric (
     PRIMARY KEY (seq, id)
 );
 
+DROP TABLE IF EXISTS raw_key_store_oblivious;
 CREATE TABLE raw_key_store_oblivious (
     seq INT,
     id INT,

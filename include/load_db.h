@@ -28,7 +28,7 @@ public:
             driver = get_driver_instance();
 
             // Create a connection
-            connection = driver->connect("tcp://" + host + ":3306", user, password);
+            connection = driver->connect("tcp://" + host, user, password);
             connection->setSchema(database);
         } catch (sql::SQLException& e) {
             // Handle exceptions

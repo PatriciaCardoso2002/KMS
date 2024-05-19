@@ -87,9 +87,6 @@ public:
 	t_integer syncAport{54004};
 	t_integer syncBport{54005};
 
-	t_string dbIpAddress{"127.0.0.1"};
-
-
 	t_integer saveType{0};
 	t_integer numKeys{ 50 };
 	std::string etsiSource{ "KMS" };
@@ -223,7 +220,6 @@ public:
 		addInputParameter("syncBipAddress", &syncBipAddress);
 		addInputParameter("syncAport", &syncAport);
 		addInputParameter("syncBport", &syncBport);
-		addInputParameter("dbIpAddress", &dbIpAddress);
 
 		addInputParameter("saveType", &saveType);
 		
