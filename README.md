@@ -27,13 +27,25 @@ docker compose up --build
 ```
 This command builds the Docker images for the services defined in the compose.yml file, creates the containers, and starts the services.
 
-Right now you need to insert the database's IP address manually, after building for the first time you can run:
+You need to insert the database's IP Address in the KMS input parameters, after running it for the first time. You can see it in a different terminal with :
 
 ```bash
 docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' kms-kms_db-1
 ```
 
-This command will return the IP address. You then need to open `KMS.cpp` and insert it into `setIPDB()` function.
+Stop the containers using `CTRL+C`. After that, remove them using:
+
+```bash
+docker container prune -f
+```
+
+You will need to build and start them again:
+
+```bash
+docker compose up --build
+```
+
+This time the application should run flawlessly. If not, stop the containers and repeat the previous command.
 
 ## Stopping the services
 
