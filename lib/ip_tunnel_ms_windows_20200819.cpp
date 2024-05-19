@@ -416,7 +416,7 @@ size_t IPTunnel::ipTunnelSend_tcp(size_t process) {
 	size_t remaining = process;
 	size_t result{ 0 };
 	size_t sent{ 0 };
-	while (remaining > 0) {
+	// while (remaining > 0) {
 		result = send(clientSocket[0], &(ip_tunnel_buffer[0]) + sent, (int) remaining, 0);
 		if (result >= 0) 
 		{
@@ -441,9 +441,9 @@ size_t IPTunnel::ipTunnelSend_tcp(size_t process) {
 				else std::cerr << "ERROR sending TCP, error #: " << errno << std::endl;
 				#endif
 			}
-			break;
+			// break;
 		}
-	}
+	// }
 	return sent;
 }
 

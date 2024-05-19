@@ -78,12 +78,11 @@ bool KeySyncBlock::runBlock(void){
             std::cout << "[KEY_SYNC_BLOCK]: RECEIVED: " << msgCommand << std::endl;
             outputSignals[3]->bufferPut(msgReceived);
         } 
-
-        // check which of the received indexes were already sent
-        for (const auto& index : receivedIndexes){
-            if (sentIndexes.find(index) != sentIndexes.end()){
-                sync_indexes.push_back(std::stoul(index));
-            }
+    }
+    // check which of the received indexes were already sent
+    for (const auto& index : receivedIndexes){
+        if (sentIndexes.find(index) != sentIndexes.end()){
+            sync_indexes.push_back(std::stoul(index));
         }
     }
 
